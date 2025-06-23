@@ -1,0 +1,45 @@
+.content-div {
+    display: flex;
+    height: 740px;
+}
+
+.content-left {
+    flex: 4;
+    padding: 0 20px 0 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-left-scrollable {
+    flex: 2;
+    overflow-y: auto;
+}
+
+.content-left-scrollable div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.content-left div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.content-right {
+    flex: 15;
+}
+.content-left-scrollable::-webkit-scrollbar {
+  display: none;
+}
+.content-left-scrollable {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+
+.content-right img{
+    width: 100%;
+    margin: auto;
+}

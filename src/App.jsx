@@ -1,0 +1,44 @@
+import Header from "./components/Header/Header.jsx";
+import TabChoice from "./components/TabChoice/TabChoice.jsx";
+import Content from "./components/Content/Content.jsx";
+
+import LightComposition from "./components/LightComposition";
+import LightDetail from "./components/LightDetail";
+import LightType from "./components/LightType";
+
+import "./App.css";
+import { useState } from "react";
+
+function App() {
+  const [btnClicked, setBtnClicked] = useState("type");
+
+  function handleTabClick(event) {
+    const name = event.target.dataset.name;
+    setBtnClicked(name);
+  }
+  let content = null;
+  const clickValue = btnClicked;
+  if (clickValue === "type") {
+    content = <LightType />;
+  } else if (clickValue === "detail") {
+    content = <LightDetail />;
+  } else if (clickValue === "composition") {
+    content = <LightComposition />;
+  } else {
+    content = <p>Please select a light option.</p>;
+  }
+  return (
+    <>
+      <div className="app-container">
+        <Header></Header>
+        <TabChoice
+          btnClicked={btnClicked}
+          handleTabClick={handleTabClick}
+        ></TabChoice>
+        <Content>{content}</Content>
+      </div>
+    </>
+  );
+}
+
+export default App;
