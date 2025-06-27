@@ -1,7 +1,7 @@
 import "./Content.css";
 
 
-export default function Content({ children }) {
+export default function Content({ children}) {
 
 
 

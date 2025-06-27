@@ -1,8 +1,10 @@
+
 import Header from "./components/Header/Header.jsx";
 import TabChoice from "./components/TabChoice/TabChoice.jsx";
 import Content from "./components/Content/Content.jsx";
+import SideBar from "./components/SideBar/SideBar.jsx";
 
-import LightComposition from "./components/LightComposition";
+import LightComposition from "./components/LightComposition/LightComposition";
 import LightDetail from "./components/LightDetail";
 import LightType from "./components/LightType";
 
@@ -29,13 +31,15 @@ function App() {
   }
   return (
     <>
-      <div className="app-container">
-        <Header></Header>
-        <TabChoice
-          btnClicked={btnClicked}
-          handleTabClick={handleTabClick}
-        ></TabChoice>
-        <Content>{content}</Content>
+      <div className="main-container">
+        <div className="side-bar"><SideBar handleTabClick={handleTabClick}  btnClicked={btnClicked}></SideBar></div>
+        <div className="app-container">
+          {/* <TabChoice
+            btnClicked={btnClicked}
+            handleTabClick={handleTabClick}
+          ></TabChoice> */}
+          <Content >{content}</Content>
+        </div>
       </div>
     </>
   );

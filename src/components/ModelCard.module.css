@@ -3,7 +3,7 @@
     width: 185px;
     height: 210px;
     background-color: inherit;
-    border: 1px solid black;
+    border: 1px solid #c3c5c9;
     border-radius: 10px;
 
     box-sizing: border-box;
@@ -20,4 +20,8 @@
 
 .item-card img{
 width: 100%;
+}
+
+.active{
+    border: 1px solid green;
 }

@@ -5,7 +5,7 @@ export default function Header(){
     return(
         <div className="site-head">
             {/* <p>Customize ＼(｀0´)／</p> */}
-            <p>Customize (╯°□°）╯</p>
+            <p>Customize</p>
             <div className="logo">
                 <img src={logo} alt="" />
             </div>

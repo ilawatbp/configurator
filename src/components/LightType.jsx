@@ -2,29 +2,10 @@ import { useState } from "react";
 import "./LightType.css";
 import ModelCard from "./ModelCard";
 import ImageGallery from "./ImageGallery/ImageGallery.jsx";
+
 export default function LightType() {
   const [rightContent, setRightContent] = useState("a1");
   const modelList = [
-    {
-      id: "a1",
-      name: "Model 1",
-      image: "./types/a1.png",
-    },
-    {
-      id: "a2",
-      name: "Model 2",
-      image: "./types/a2.png",
-    },
-    {
-      id: "a3",
-      name: "Model 3",
-      image: "./types/a3.png",
-    },
-    {
-      id: "a4",
-      name: "Model 4",
-      image: "./types/a4.png",
-    },
     {
       id: "a1",
       name: "Model 1",

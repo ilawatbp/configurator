@@ -1,9 +1,9 @@
 .tabs{
-    height: 50px;
-    border-bottom: 3px solid black;
+    height: 40px;
+    /* border-bottom: 3px solid black; */
     padding: 0 20px;
     display: flex;
-    align-items: center;
+    align-items: center;       
 }
 
 .tabs ul{
