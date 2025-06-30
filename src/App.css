@@ -12,3 +12,17 @@
 border-right: 1px solid #c3c5c9;
 box-sizing: border-box;
 }
+
+
+@keyframes contentOpacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.ContentEffect {
+  animation: contentOpacity 1s ease forwards;
+}

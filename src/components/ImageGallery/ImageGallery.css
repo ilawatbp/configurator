@@ -62,3 +62,17 @@
   display: block;
   flex-shrink: 0;
 }
+
+
+@keyframes imageFadeFrame {
+  0%{
+    opacity: 1;
+  }
+  100%{
+    opacity: 0;
+  }
+}
+
+.image-fade{
+  animation: imageFadeFrame 1s ease;
+}

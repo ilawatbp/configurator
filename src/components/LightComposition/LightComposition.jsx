@@ -5,21 +5,25 @@ import ObjFile from "./ObjFile.jsx";
 
 export default function LightComposition() {
   const [config, setConfig] = useState({
-    rows: 5,
-    cols: 4,
-    pattern: "flat",
+    rows: 10,
+    cols: 10,
+    pattern: "wave",
     spacing: 20,
     surfaceHeight: 170,
     surfaceLength: 0,
     surfaceWidth: 0,
     baseOffset: 10,
-    lowest: 20,
+    lowest: 0,
     highest: 150,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setConfig((prev) => ({ ...prev, [name]: value }));
+    if (name === "pattern"){
+      setConfig((prev) => ({ ...prev, [name]: value }));
+    }else{
+      setConfig((prev) => ({ ...prev, [name]: parseInt(value, 10) }));
+    }
 
 if (name === "surfaceHeight") {
     if (value < config.highest || value < config.lowest) {
@@ -63,16 +67,16 @@ if (name === "surfaceHeight") {
         </label>
 
         {[
-          { name: "rows", max: 20, min: 1, val: 0 },
-          { name: "cols", max: 20, min: 1, val: 0 },
-          { name: "spacing", max: 100, min: 0, val: 0 },
-          { name: "surfaceLength", max: 999, min: 0, val: 0 },
-          { name: "surfaceWidth", max: 999, min: 0, val: 0 },
-          { name: "surfaceHeight", max: 999, min: 0, val: 0 },
-          { name: "baseOffset", max: 30, min: 0, val: 0 },
-          { name: "lowest", max: 999, min: 0, val: 0 },
-          { name: "highest", max: 999, min: 0, val: 0 },
-        ].map(({ name, max, min }) => {
+          { labelName : "Rows", name: "rows", max: 20, min: 1, val: 0 },
+          { labelName : "Column", name: "cols", max: 20, min: 1, val: 0 },
+          { labelName : "Spacing", name: "spacing", max: 100, min: 0, val: 0 },
+          { labelName : "Base Plate Length", name: "surfaceLength", max: 999, min: 0, val: 0 },
+          { labelName : "Base Plate Width", name: "surfaceWidth", max: 999, min: 0, val: 0 },
+          { labelName : "Base Plate From Floor", name: "surfaceHeight", max: 999, min: 0, val: 0 },
+          { labelName : "Base Plate Offset", name: "baseOffset", max: 30, min: 0, val: 0 },
+          { labelName : "Lowest", name: "lowest", max: 999, min: 0, val: 0 },
+          { labelName : "Highest", name: "highest", max: 999, min: 0, val: 0 },
+        ].map(({ name, max, min, labelName }) => {
           const isBaseOffsetShow =
             !(name === "baseOffset" && config.surfaceLength == 0) ||
             !(name === "baseOffset" && config.surfaceWidth == 0);
@@ -107,8 +111,15 @@ if (name === "surfaceHeight") {
                   : undefined
               }
             >
-              <label key={name} style={isInactive ? { color: "#ddd" } : {}}>
-                {name}:
+              <label
+              key={name}
+                style={{
+                ...(isInactive ? { color: "#ddd" } : {}),
+                ...(name === "surfaceLength" || name === "lowest" ? { marginTop: "70px" } : {})
+              }}
+              >
+
+                {labelName}:
               </label>
               <div className={Styles.inputsDiv}>
                 <input
@@ -118,6 +129,7 @@ if (name === "surfaceHeight") {
                   onChange={handleChange}
                   min={min}
                   max={max}
+                  className={isInactive ? Styles.inactive : ""}
                 />
                 <input
                   type="number"
@@ -129,9 +141,7 @@ if (name === "surfaceHeight") {
                   style={
                     isInactive
                       ? {
-                          border: "1px solid #ddd",
-                          backgroundColor: "#ddd",
-                          color: "grey",
+                          color: '#ddd'
                         }
                       : {}
                   }

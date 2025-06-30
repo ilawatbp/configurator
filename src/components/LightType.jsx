@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./LightType.css";
+import Styles from"./LightType.module.css";
 import ModelCard from "./ModelCard";
 import ImageGallery from "./ImageGallery/ImageGallery.jsx";
 
@@ -36,10 +36,10 @@ export default function LightType() {
   const selectedModel = modelList.find((item) => item.id === rightContent);
 
   return (
-    <div className="content-div">
-      <div className="content-left">
+    <div className={Styles["content-div"]}>
+      <div className={Styles["content-left"]}>
         <h1>Types</h1>
-        <div className="content-left-scrollable">
+        <div className={Styles["content-left-scrollable"]}>
           <div>
             {modelList.map(({ name, image, id }) => (
               <ModelCard
@@ -53,7 +53,7 @@ export default function LightType() {
           </div>
         </div>
       </div>
-      <div className="content-right">
+      <div className={Styles["content-right"]}>
         <div>
           <ImageGallery typeSelected={selectedModel} />
         </div>

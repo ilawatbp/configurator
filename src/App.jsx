@@ -38,7 +38,11 @@ function App() {
             btnClicked={btnClicked}
             handleTabClick={handleTabClick}
           ></TabChoice> */}
-          <Content >{content}</Content>
+          {/* <Content className="ContentEffect">{content}</Content> */}
+          <Content key={btnClicked} className="ContentEffect">
+            {content}
+          </Content>
+
         </div>
       </div>
     </>
