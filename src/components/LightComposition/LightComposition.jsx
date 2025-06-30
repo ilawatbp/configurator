@@ -74,8 +74,8 @@ if (name === "surfaceHeight") {
           { labelName : "Base Plate Width", name: "surfaceWidth", max: 999, min: 0, val: 0 },
           { labelName : "Base Plate From Floor", name: "surfaceHeight", max: 999, min: 0, val: 0 },
           { labelName : "Base Plate Offset", name: "baseOffset", max: 30, min: 0, val: 0 },
-          { labelName : "Lowest", name: "lowest", max: 999, min: 0, val: 0 },
-          { labelName : "Highest", name: "highest", max: 999, min: 0, val: 0 },
+          { labelName : "Lowest From the Ground", name: "lowest", max: 999, min: 0, val: 0 },
+          { labelName : "Highest From the Ground", name: "highest", max: 999, min: 0, val: 0 },
         ].map(({ name, max, min, labelName }) => {
           const isBaseOffsetShow =
             !(name === "baseOffset" && config.surfaceLength == 0) ||
@@ -160,7 +160,6 @@ if (name === "surfaceHeight") {
         >
           Generate
         </button>
-        {/* {config.pattern === "random" ? : undefined} */}
       </div>
 
       <ObjFile config={config} />

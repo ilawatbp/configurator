@@ -51,26 +51,12 @@ const ObjFile = ({ config }) => {
     animate();
 
     const loader = new OBJLoader();
-    // loader.load(
-    //   "/models/myModel.obj",
-    //   (obj) => {
-    //     modelRef.current = obj;
-    //     updateSceneWithConfig();
-    //   },
-    //   undefined,
-    //   (err) => console.error("OBJ load error:", err)
-    // );
 
-// loader.load(import.meta.env.BASE_URL + "models/myModel.obj", (obj) => {
-//   modelRef.current = obj;
-//   updateSceneWithConfig();
-// });
+    loader.load("/configurator/models/myModel.obj", (obj) => {
+      modelRef.current = obj;
+      updateSceneWithConfig();
+    });
 
-loader.load("/configurator/models/myModel.obj", (obj) => {
-  modelRef.current = obj;
-  updateSceneWithConfig();
-});
-    
     window.addEventListener("resize", handleResize);
 
     return () => {
