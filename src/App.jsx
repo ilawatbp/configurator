@@ -10,6 +10,7 @@ import LightType from "./components/LightType";
 
 import "./App.css";
 import { useState } from "react";
+import { version } from "react-dom/server";
 
 function App() {
   const [btnClicked, setBtnClicked] = useState("type");
@@ -50,3 +51,4 @@ function App() {
 }
 
 export default App;
+// new version
