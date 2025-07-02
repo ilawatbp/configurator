@@ -51,11 +51,11 @@ export default function ImageGallery({typeSelected = 0}) {
               onClick={() => handleSelectImage(index)}
               key={index}
             >
-              <img className="thumbnails-img" src={image} alt="" />
+              <img className="thumbnails-img" src={image} alt="" loading="lazy" />
             </div>
           ))}
         </div>
-        <img className="main-image" src={images[activeIndex]} alt="" />
+        <img className="main-image" src={images[activeIndex]} alt="" loading="lazy" />
       </div>
     </div>
   );
