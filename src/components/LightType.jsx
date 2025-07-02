@@ -9,22 +9,22 @@ export default function LightType() {
     {
       id: "a1",
       name: "Model 1",
-      image: "./types/a1.png",
+      image: import.meta.env.BASE_URL +"/types/a1.png",
     },
     {
       id: "a2",
       name: "Model 2",
-      image: "./types/a2.png",
+      image: import.meta.env.BASE_URL +"/types/a2.png",
     },
     {
       id: "a3",
       name: "Model 3",
-      image: "./types/a3.png",
+      image: import.meta.env.BASE_URL +"/types/a3.png",
     },
     {
       id: "a4",
       name: "Model 4",
-      image: "./types/a4.png",
+      image: import.meta.env.BASE_URL +"/types/a4.png",
     },
   ];
 

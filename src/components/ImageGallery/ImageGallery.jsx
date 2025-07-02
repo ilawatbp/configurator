@@ -4,7 +4,8 @@ import { LessThanIcon } from "../../assets/icon/icon.jsx";
 import { useState } from "react";
 export default function ImageGallery({typeSelected = 0}) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const directory = (`./types/`+ typeSelected.id);
+  const directory = ( import.meta.env.BASE_URL +`/types/`+ typeSelected.id);
+  console.log(directory);
   const images = [
     directory+"/image-01.png",
     directory+"/image-02.png",
