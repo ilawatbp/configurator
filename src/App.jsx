@@ -1,4 +1,3 @@
-
 import Header from "./components/Header/Header.jsx";
 import TabChoice from "./components/TabChoice/TabChoice.jsx";
 import Content from "./components/Content/Content.jsx";
@@ -10,7 +9,6 @@ import LightType from "./components/LightType";
 
 import "./App.css";
 import { useState } from "react";
-import { version } from "react-dom/server";
 
 function App() {
   const [btnClicked, setBtnClicked] = useState("type");
@@ -32,18 +30,25 @@ function App() {
   }
   return (
     <>
-      <div className="main-container">
-        <div className="side-bar"><SideBar handleTabClick={handleTabClick}  btnClicked={btnClicked}></SideBar></div>
-        <div className="app-container">
-          {/* <TabChoice
+      <div>
+        <Header handleTabClick={handleTabClick}/>
+        <div className="main-container">
+          <div className="side-bar">
+            <SideBar
+              handleTabClick={handleTabClick}
+              btnClicked={btnClicked}
+            ></SideBar>
+          </div>
+          <div className="app-container">
+            {/* <TabChoice
             btnClicked={btnClicked}
             handleTabClick={handleTabClick}
           ></TabChoice> */}
-          {/* <Content className="ContentEffect">{content}</Content> */}
-          <Content key={btnClicked} className="ContentEffect">
-            {content}
-          </Content>
-
+            {/* <Content className="ContentEffect">{content}</Content> */}
+            <Content key={btnClicked} className="ContentEffect">
+              {content}
+            </Content>
+          </div>
         </div>
       </div>
     </>

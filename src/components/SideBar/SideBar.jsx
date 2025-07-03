@@ -2,7 +2,7 @@ import logo from "../../assets/logo icon.png";
 import "./SideBar.css";
 export default function SideBar({handleTabClick, btnClicked}) {
   return (
-    <div className="sidebar-container">
+    <div className="hidden md:flex sidebar-container">
       <img src={logo} alt="icon" />
 
 

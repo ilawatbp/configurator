@@ -57,11 +57,11 @@ if (name === "surfaceHeight") {
               "spiral",
               "wave",
             ].map((p) => (
-              <>
+              <React.Fragment key={p}>
                 <option key={p} value={p}>
                   {p}
                 </option>
-              </>
+              </ React.Fragment>
             ))}
           </select>
         </label>
@@ -90,7 +90,7 @@ if (name === "surfaceHeight") {
           }
 
           return (
-            <div
+            <div key={Math.random()}
               style={
                 name === "baseOffset"
                   ? isBaseOffsetShow
