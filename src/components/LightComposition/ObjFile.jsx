@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 
-const ObjFile = ({ config }) => {
+const ObjFile = ({ config, onStringHeightsUpdate }) => {
   const containerRef = useRef();
   const sceneRef = useRef(new THREE.Scene());
   const modelRef = useRef(null);
@@ -13,6 +13,8 @@ const ObjFile = ({ config }) => {
 
   const dimensionLines = useRef([]);
   const dimensionLabels = useRef([]);
+
+  const allStringHeightRef = useRef([]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -62,7 +64,7 @@ const ObjFile = ({ config }) => {
     return () => {
       window.removeEventListener("resize", handleResize);
       container.removeChild(renderer.domElement);
-      clearDimensionLabels(); // 💥 Clear on unmount too
+      clearDimensionLabels();
     };
   }, []);
 
@@ -73,6 +75,9 @@ const ObjFile = ({ config }) => {
   }, [config]);
 
   const updateSceneWithConfig = () => {
+
+    const localStringHeight = [];
+
     const scene = sceneRef.current;
     const model = modelRef.current.clone();
     model.scale.set(1, 1, 1);
@@ -159,9 +164,38 @@ const ObjFile = ({ config }) => {
           yOffset = (r + c) % 2 === 0 ? highestY : lowestY;
         } else if (pattern === "random") {
           yOffset = Math.floor(Math.random() * (highestY - lowestY) + lowestY);
-        }
+        }      
 
         const clone = model.clone();
+
+// Insert check and color change here
+if (r === 0 && c === 0) {
+  clone.traverse((child) => {
+    if (child.isMesh) {
+      child.material = child.material.clone();
+      child.material.color.set(0xff0000);
+    }
+  });
+}
+
+if (r === 0 && c === 9) {
+  clone.traverse((child) => {
+    if (child.isMesh) {
+      child.material = child.material.clone();
+      child.material.color.set(0xd19900);
+    }
+  });
+}
+if (r === 9 && c === 9) {
+  clone.traverse((child) => {
+    if (child.isMesh) {
+      child.material = child.material.clone();
+      child.material.color.set(0x22ff00);
+    }
+  });
+}
+
+     yOffset = Math.floor(yOffset);
         clone.position.set(
           offsetX + c * spacing,
           yOffset,
@@ -183,8 +217,24 @@ const ObjFile = ({ config }) => {
         );
         string.userData.isString = true;
         scene.add(string);
+          localStringHeight.push({
+            row: r,
+            col: c,
+            pendantY: yOffset,         // pendant vertical position (for reference)
+            stringHeight: stringHeight // actual string height
+          })
       }
+
     }
+
+        allStringHeightRef.current = localStringHeight;
+
+          // Call parent callback to update
+          if (onStringHeightsUpdate) {
+            onStringHeightsUpdate(localStringHeight);
+          }
+          
+        // console.log("All string heights:", allStringHeightRef.current);
 
     const surfaceMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(surfaceWidth, surfaceLength),
@@ -242,6 +292,7 @@ const ObjFile = ({ config }) => {
     div.style.padding = "2px 6px";
     div.style.borderRadius = "4px";
     div.style.fontSize = "10px";
+    div.style.zIndex = "20";
     div.innerHTML = label;
     document.body.appendChild(div);
     dimensionLabels.current.push(div);
@@ -281,7 +332,7 @@ const ObjFile = ({ config }) => {
     camera.updateProjectionMatrix();
     renderer.setSize(container.clientWidth, container.clientHeight);
   };
-
+  
   useEffect(() => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -289,5 +340,7 @@ const ObjFile = ({ config }) => {
 
   return <div ref={containerRef} style={{ flex: 1 }} />;
 };
+
+
 
 export default ObjFile;

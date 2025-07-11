@@ -7,24 +7,10 @@
 }
 img{
     width: 25px;
-    margin-bottom: 100px;
 }
 
-.side-icon{
-    display: flex; 
-    flex-direction: column;
-    height: 20vh;
-    gap: 50px;
-}
-
-.side-icon i {
-  font-size: 24px;
-  color: #000;
-  cursor: pointer;
-}
-
-.side-icon .active{
+.active{
     border-bottom: 1px solid green;
 }
-
+ 
 

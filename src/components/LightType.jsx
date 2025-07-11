@@ -46,11 +46,12 @@ export default function LightType() {
           <div className="flex flex-wrap justify-evenly">
             {modelList.map(({ name, image, id }) => (
               <ModelCard
-                key={id}
+                keyid={id}
                 onClick={handleClickModel}
                 modelName={name}
                 imgId={id}
                 imgLink={image}
+                rightContent={rightContent}
               ></ModelCard>
             ))}
           </div>

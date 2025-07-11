@@ -3,7 +3,6 @@ import { useState } from "react";
 export default function ImageGallery({ typeSelected = 0}) {
   const [activeIndex, setActiveIndex] = useState(0);
   const directory = import.meta.env.BASE_URL + `/types/` + typeSelected.id;
-  console.log(directory);
   const images = [
     directory + "/image-01.png",
     directory + "/image-02.png",
@@ -15,9 +14,9 @@ export default function ImageGallery({ typeSelected = 0}) {
     directory + "/image-08.png",
   ];
 
-  function handleSelectImage(index) {
-    setActiveIndex(index);
-  }
+  // function handleSelectImage(index) {
+  //   setActiveIndex(index);
+  // }
   function handleArrowClick(event) {
     let index = 0;
     const { name } = event.currentTarget;
@@ -66,7 +65,7 @@ export default function ImageGallery({ typeSelected = 0}) {
                         items-center
         "
         >
-          {images.map((image, index) => (
+          {/* {images.map((image, index) => (
             <div
               className={
                 index == activeIndex
@@ -83,7 +82,7 @@ export default function ImageGallery({ typeSelected = 0}) {
                 loading="lazy"
               />
             </div>
-          ))}
+          ))} */}
         </div>
         <img
           className="main-image w-[100%] m-auto"

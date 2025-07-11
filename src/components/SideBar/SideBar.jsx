@@ -1,51 +1,35 @@
 import logo from "../../assets/logo icon.png";
 import "./SideBar.css";
-export default function SideBar({handleTabClick, btnClicked}) {
+import { Box, ListTodo, Lightbulb } from "lucide-react";
+export default function SideBar({ handleTabClick, btnClicked }) {
   return (
     <div className="hidden md:flex sidebar-container">
-      <img src={logo} alt="icon" />
-
-
-      <div className="side-icon">
-        <i
-          className={`material-symbols-outlined ${btnClicked === 'type'? "active":undefined}`}
+      <img className="margin-auto" src={logo} alt="icon" />
+      <div className="flex flex-col h-[50vh] justify-center gap-10">
+        <Lightbulb
+          className={`min-w-7 min-h-9 py-1 ${
+            btnClicked === "type" ? "active" : undefined
+          } transition-all duration-500 ease-in-out`}
+          strokeWidth={1}
           onClick={handleTabClick}
           data-name="type"
-          style={{
-            fontVariationSettings:
-              "  'FILL' 0,  'wght' 100,  'GRAD' 0,  'opsz' 24",
-            fontSize: "36px",
-            color: "#333",
-          }}
-        >
-          emoji_objects
-        </i>
-        <i
-          className={`material-symbols-outlined ${btnClicked === 'detail'? "active":undefined}`}
+        />
+        <ListTodo
+          className={`min-w-7 min-h-9 pb-1 ${
+            btnClicked === "detail" ? "active" : undefined
+          } transition-all duration-500 ease-in-out`}
+          strokeWidth={1}
           onClick={handleTabClick}
           data-name="detail"
-          style={{
-            fontVariationSettings:
-              "  'FILL' 0,  'wght' 100,  'GRAD' 0,  'opsz' 24",
-            fontSize: "36px",
-            color: "#333",
-          }}
-        >
-ballot
-        </i>
-        <i
-          className={`material-symbols-outlined ${btnClicked === 'composition'? "active":undefined}`}
+        />
+        <Box
+          className={`min-w-7 min-h-9 pb-1 ${
+            btnClicked === "composition" ? "active" : undefined
+          } transition-all duration-500 ease-in-out`}
+          strokeWidth={1}
           onClick={handleTabClick}
           data-name="composition"
-          style={{
-            fontVariationSettings:
-              "  'FILL' 0,  'wght' 100,  'GRAD' 0,  'opsz' 24",
-            fontSize: "36px",
-            color: "#333",
-          }}
-        >
-          deployed_code
-        </i>
+        />
       </div>
     </div>
   );
