@@ -4,6 +4,8 @@ import Styles from "./LightComposition.module.css";
 import ObjFile from "./ObjFile.jsx";
 import Modal from "../Modal.jsx";
 
+import Baseplate2D from "./Baseplate2D";
+
 export default function LightComposition() {
   const [currentData, setCurrentData] = useState("");
   const [ismodalOpen, setIsModalOpen] = useState(false);
@@ -37,6 +39,7 @@ export default function LightComposition() {
         length: surfaceLength,
         width: surfaceWidth,
         height: config.surfaceHeight,
+        baseOffset: config.baseOffset
       },
       pattern: config.pattern,
       pendantType: "Your pendant type here",
@@ -44,10 +47,9 @@ export default function LightComposition() {
       objFile: "/configurator/models/myModel.obj",
     };
 
-    console.log("Data collected:", data);
      handleModal();
     setCurrentData(data)
-    console.log(data);
+
 
     // You can also show in UI, download as JSON, etc.
   };
@@ -55,8 +57,8 @@ export default function LightComposition() {
   const [stringHeights, setStringHeights] = useState([]);
 
   const [config, setConfig] = useState({
-    rows: 10,
-    cols: 10,
+    rows: 4,
+    cols: 1,
     pattern: "wave",
     spacing: 20,
     surfaceHeight: 170,
@@ -232,7 +234,7 @@ export default function LightComposition() {
                 <h1>pattern</h1>
                 <p>{currentData.pattern}</p>
                 <h1>Strings</h1>
-                <table>
+                {/* <table>
                   {currentData.stringHeights.map((string, index) => (
                     <tr>
                       <td>{`${index + 1})`}</td>
@@ -240,7 +242,9 @@ export default function LightComposition() {
                       <td>{`height: ${string.stringHeight} cm`}</td>
                     </tr>
                   ))}
-                </table>
+                </table> */}
+                
+                <Baseplate2D stringHeights={currentData.stringHeights} surface={currentData.surface} config={config}/>
               </div>
             ) : (
               // col: 1

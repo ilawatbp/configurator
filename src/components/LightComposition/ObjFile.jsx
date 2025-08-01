@@ -218,6 +218,8 @@ if (r === 9 && c === 9) {
         string.userData.isString = true;
         scene.add(string);
           localStringHeight.push({
+            x: offsetX + c * spacing,
+            y: offsetZ + r * spacing,
             row: r,
             col: c,
             pendantY: yOffset,         // pendant vertical position (for reference)
