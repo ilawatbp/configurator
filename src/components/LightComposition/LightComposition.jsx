@@ -57,8 +57,8 @@ export default function LightComposition() {
   const [stringHeights, setStringHeights] = useState([]);
 
   const [config, setConfig] = useState({
-    rows: 4,
-    cols: 1,
+    rows: 9,
+    cols: 5,
     pattern: "wave",
     spacing: 20,
     surfaceHeight: 170,
