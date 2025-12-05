@@ -11,15 +11,13 @@ export default function LightComposition() {
   const [ismodalOpen, setIsModalOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
 
-  function handleModal(){
-    setIsModalOpen((prev)=> !prev)
+  function handleModal() {
+    setIsModalOpen((prev) => !prev);
   }
 
-  function handlePanel(){
-    setPanelOpen((prev)=>!prev);
-  }  
-
-
+  function handlePanel() {
+    setPanelOpen((prev) => !prev);
+  }
 
   const handleGetData = () => {
     const surfaceLength =
@@ -39,7 +37,7 @@ export default function LightComposition() {
         length: surfaceLength,
         width: surfaceWidth,
         height: config.surfaceHeight,
-        baseOffset: config.baseOffset
+        baseOffset: config.baseOffset,
       },
       pattern: config.pattern,
       pendantType: "Your pendant type here",
@@ -47,9 +45,8 @@ export default function LightComposition() {
       objFile: "/configurator/models/myModel.obj",
     };
 
-     handleModal();
-    setCurrentData(data)
-
+    handleModal();
+    setCurrentData(data);
 
     // You can also show in UI, download as JSON, etc.
   };
@@ -93,9 +90,17 @@ export default function LightComposition() {
 
   return (
     <div className={Styles.wrapper}>
-      <div className=  {`flex flex-col justify-start absolute h-screen bg-white`}>
-      <div className="text-right p-4"><span onClick={handlePanel}>&times;</span></div>
-        <div className={`${Styles.panel} ${panelOpen ? "opacity-1 w-[290px] transition-[opacity] delay-200" : "opacity-0 w-[2px]" } transition-[width] duration-500`}>
+      <div className={`flex flex-col justify-start absolute h-screen bg-white`}>
+        <div className="text-right p-4">
+          <span onClick={handlePanel}>&times;</span>
+        </div>
+        <div
+          className={`${Styles.panel} ${
+            panelOpen
+              ? "opacity-1 w-[290px] transition-[opacity] delay-200"
+              : "opacity-0 w-[2px]"
+          } transition-[width] duration-500`}
+        >
           <label>
             Pattern:
             <select
@@ -104,21 +109,19 @@ export default function LightComposition() {
               onChange={handleChange}
             >
               {[
-                "checkerboard",
-                "diagonal",
-                "dome",
                 "flat",
-                "mirror",
-                "random",
+                "dome",
+                "reverseDome", // ⭐ NEW PATTERN ADDED
+                "wave",
                 "ripple",
                 "spiral",
-                "wave",
+                "diagonal",
+                "checkerboard",
+                "random",
               ].map((p) => (
-                <>
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                </>
+                <option key={p} value={p}>
+                  {p}
+                </option>
               ))}
             </select>
           </label>
@@ -127,12 +130,48 @@ export default function LightComposition() {
             { labelName: "Rows", name: "rows", max: 20, min: 1, val: 0 },
             { labelName: "Column", name: "cols", max: 20, min: 1, val: 0 },
             { labelName: "Spacing", name: "spacing", max: 100, min: 0, val: 0 },
-            { labelName: "Base Plate Length", name: "surfaceLength", max: 999, min: 0, val: 0 },
-            { labelName: "Base Plate Width", name: "surfaceWidth", max: 999, min: 0, val: 0 },
-            { labelName: "Base Plate From Floor", name: "surfaceHeight", max: 999, min: 0, val: 0 },
-            { labelName: "Base Plate Offset", name: "baseOffset", max: 30, min: 0, val: 0 },
-            { labelName: "Lowest From the Ground", name: "lowest", max: 999, min: 0, val: 0 },
-            { labelName: "Highest From the Ground", name: "highest", max: 999, min: 0, val: 0 },
+            {
+              labelName: "Base Plate Length",
+              name: "surfaceLength",
+              max: 999,
+              min: 0,
+              val: 0,
+            },
+            {
+              labelName: "Base Plate Width",
+              name: "surfaceWidth",
+              max: 999,
+              min: 0,
+              val: 0,
+            },
+            {
+              labelName: "Base Plate From Floor",
+              name: "surfaceHeight",
+              max: 999,
+              min: 0,
+              val: 0,
+            },
+            {
+              labelName: "Base Plate Offset",
+              name: "baseOffset",
+              max: 30,
+              min: 0,
+              val: 0,
+            },
+            {
+              labelName: "Lowest From the Ground",
+              name: "lowest",
+              max: 999,
+              min: 0,
+              val: 0,
+            },
+            {
+              labelName: "Highest From the Ground",
+              name: "highest",
+              max: 999,
+              min: 0,
+              val: 0,
+            },
           ].map(({ name, max, min, labelName }) => {
             const isBaseOffsetShow =
               !(name === "baseOffset" && config.surfaceLength == 0) ||
@@ -220,9 +259,17 @@ export default function LightComposition() {
             Generate
           </button>
         </div>
-          <button className={`mx-auto mt-auto mb-10
-            ${panelOpen ? "opacity-1 w-3/4 transition-all delay-500" : "opacity-0 w-0" 
-            }`} onClick={handleGetData}>Generate Data</button>
+        <button
+          className={`mx-auto mt-auto mb-10
+            ${
+              panelOpen
+                ? "opacity-1 w-3/4 transition-all delay-500"
+                : "opacity-0 w-0"
+            }`}
+          onClick={handleGetData}
+        >
+          Generate Data
+        </button>
       </div>
       <ObjFile config={config} onStringHeightsUpdate={setStringHeights} />
 
@@ -243,8 +290,12 @@ export default function LightComposition() {
                     </tr>
                   ))}
                 </table> */}
-                
-                <Baseplate2D stringHeights={currentData.stringHeights} surface={currentData.surface} config={config}/>
+
+                <Baseplate2D
+                  stringHeights={currentData.stringHeights}
+                  surface={currentData.surface}
+                  config={config}
+                />
               </div>
             ) : (
               // col: 1

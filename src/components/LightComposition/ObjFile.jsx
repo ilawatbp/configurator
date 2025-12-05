@@ -13,7 +13,6 @@ const ObjFile = ({ config, onStringHeightsUpdate }) => {
 
   const dimensionLines = useRef([]);
   const dimensionLabels = useRef([]);
-
   const allStringHeightRef = useRef([]);
 
   useEffect(() => {
@@ -53,7 +52,6 @@ const ObjFile = ({ config, onStringHeightsUpdate }) => {
     animate();
 
     const loader = new OBJLoader();
-
     loader.load("/configurator/models/myModel.obj", (obj) => {
       modelRef.current = obj;
       updateSceneWithConfig();
@@ -69,20 +67,16 @@ const ObjFile = ({ config, onStringHeightsUpdate }) => {
   }, []);
 
   useEffect(() => {
-    if (modelRef.current) {
-      updateSceneWithConfig();
-    }
+    if (modelRef.current) updateSceneWithConfig();
   }, [config]);
 
   const updateSceneWithConfig = () => {
-
     const localStringHeight = [];
 
     const scene = sceneRef.current;
     const model = modelRef.current.clone();
     model.scale.set(1, 1, 1);
 
-    // Clear old pendants, strings, surface
     scene.children = scene.children.filter(
       (obj) =>
         !obj.userData?.isPendant &&
@@ -90,7 +84,6 @@ const ObjFile = ({ config, onStringHeightsUpdate }) => {
         !obj.userData?.isSurface
     );
 
-    // Clear dimension lines and labels
     dimensionLines.current.forEach((line) => scene.remove(line));
     dimensionLines.current = [];
     clearDimensionLabels();
@@ -108,94 +101,96 @@ const ObjFile = ({ config, onStringHeightsUpdate }) => {
       surfaceWidth: inputSurfaceWidth,
     } = config;
 
+    const rowsN = Number(rows);
+    const colsN = Number(cols);
+
+    const lowestY = Number(lowest);
+    const highestY = Number(highest);
+
+    const minY = Math.min(lowestY, highestY);
+    const maxY = Math.max(lowestY, highestY);
+
     let surfaceLength = inputSurfaceLength;
     let surfaceWidth = inputSurfaceWidth;
 
     if (surfaceWidth === 0 && surfaceLength === 0) {
-      surfaceWidth = (cols - 1) * spacing + parseInt(baseOffset || 0, 10);
-      surfaceLength = (rows - 1) * spacing + parseInt(baseOffset || 0, 10);
+      surfaceWidth = (colsN - 1) * spacing + Number(baseOffset || 0);
+      surfaceLength = (rowsN - 1) * spacing + Number(baseOffset || 0);
     }
 
-    const offsetX = -((cols - 1) / 2) * spacing;
-    const offsetZ = -((rows - 1) / 2) * spacing;
+    const offsetX = -((colsN - 1) / 2) * spacing;
+    const offsetZ = -((rowsN - 1) / 2) * spacing;
 
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        let yOffset = 0;
-        const highestY = parseInt(highest, 10);
-        const lowestY = parseInt(lowest, 10);
-        const parseRow = parseInt(rows, 10);
-        const parseCol = parseInt(cols, 10);
+    const centerRow = (rowsN - 1) / 2;
+    const centerCol = (colsN - 1) / 2;
 
-        if (pattern === "flat") {
-          yOffset = 0;
-        } else if (pattern === "dome") {
-          const rx = r - parseRow / 2;
-          const cxOffset = c - parseCol / 2;
-          const distance = Math.sqrt(rx * rx + cxOffset * cxOffset);
-          const height = (lowestY + highestY) / 2;
-          yOffset = height + distance * 10;
-        } else if (pattern === "ripple") {
-          const rx = r - parseRow / 2;
-          const cxOffset = c - parseCol / 2;
-          const distance = Math.sqrt(rx * rx + cxOffset * cxOffset);
-          yOffset = Math.sin(distance * 0.8) * 20 + 50;
-        } else if (pattern === "spiral") {
-          const dx = c - parseCol / 2;
-          const dy = r - parseRow / 2;
-          const angle = Math.atan2(dy, dx);
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const height = (lowestY + highestY) / 2;
-          yOffset = height + angle * 10 + distance * 5;
-        } else if (pattern === "mirror") {
-          const dx = c - parseCol / 2;
-          const height = (lowestY + highestY) / 2;
-          yOffset = height + Math.abs(dx) * 10;
-        } else if (pattern === "wave") {
-          const mid = (highestY + lowestY) / 2;
-          const amplitude = (lowestY - highestY) / 2;
-          yOffset =
-            mid + (Math.sin(c * 0.5) + Math.cos(r * 0.5)) * amplitude * 0.5;
-        } else if (pattern === "diagonal") {
-          yOffset =
-            lowestY +
-            (highestY - lowestY) * ((r + c) / (parseRow + parseCol - 2));
-        } else if (pattern === "checkerboard") {
-          yOffset = (r + c) % 2 === 0 ? highestY : lowestY;
-        } else if (pattern === "random") {
-          yOffset = Math.floor(Math.random() * (highestY - lowestY) + lowestY);
-        }      
+    const maxGridRadius = Math.sqrt(centerRow * centerRow + centerCol * centerCol);
+
+    // ----------------------------------------------------
+    // GENERATE PENDANTS + PATTERN ENGINE
+    // ----------------------------------------------------
+    for (let r = 0; r < rowsN; r++) {
+      for (let c = 0; c < colsN; c++) {
+        
+        const dr = r - centerRow;
+        const dc = c - centerCol;
+        const dist = Math.sqrt(dr * dr + dc * dc);
+        const t = dist / maxGridRadius;
+
+        let yOffset = minY;
+
+        switch (pattern) {
+          case "flat":
+            yOffset = minY;
+            break;
+
+          case "dome":
+            yOffset = minY + (maxY - minY) * (1 - t) ** 2;
+            break;
+
+          case "reverseDome":
+            yOffset = minY + (maxY - minY) * (t ** 2);
+            break;
+
+          case "wave":
+            const mid = (minY + maxY) / 2;
+            const amplitude = (maxY - minY) / 2;
+            yOffset =
+              mid +
+              (Math.sin(c * 0.5) + Math.cos(r * 0.5)) * amplitude * 0.5;
+            break;
+
+          case "ripple":
+            yOffset =
+              minY + (maxY - minY) * (Math.sin(dist * 1.5) * 0.5 + 0.5);
+            break;
+
+          case "spiral":
+            const angle = Math.atan2(dr, dc);
+            const angleNorm = (angle + Math.PI) / (2 * Math.PI);
+            yOffset = minY + (maxY - minY) * angleNorm;
+            break;
+
+          case "diagonal":
+            const diag = (r + c) / (rowsN + colsN - 2);
+            yOffset = minY + (maxY - minY) * diag;
+            break;
+
+          case "checkerboard":
+            yOffset = (r + c) % 2 === 0 ? minY : maxY;
+            break;
+
+          case "random":
+            yOffset = minY + Math.random() * (maxY - minY);
+            break;
+
+          default:
+            yOffset = minY;
+        }
+
+        yOffset = Math.floor(yOffset);
 
         const clone = model.clone();
-
-// Insert check and color change here
-if (r === 0 && c === 0) {
-  clone.traverse((child) => {
-    if (child.isMesh) {
-      child.material = child.material.clone();
-      child.material.color.set(0xff0000);
-    }
-  });
-}
-
-if (r === 0 && c === 9) {
-  clone.traverse((child) => {
-    if (child.isMesh) {
-      child.material = child.material.clone();
-      child.material.color.set(0xd19900);
-    }
-  });
-}
-if (r === 9 && c === 9) {
-  clone.traverse((child) => {
-    if (child.isMesh) {
-      child.material = child.material.clone();
-      child.material.color.set(0x22ff00);
-    }
-  });
-}
-
-     yOffset = Math.floor(yOffset);
         clone.position.set(
           offsetX + c * spacing,
           yOffset,
@@ -210,6 +205,7 @@ if (r === 9 && c === 9) {
           new THREE.CylinderGeometry(0.1, 0.1, stringHeight, 8),
           new THREE.MeshStandardMaterial({ color: 0x292929 })
         );
+
         string.position.set(
           clone.position.x,
           yOffset + stringHeight / 2,
@@ -217,26 +213,19 @@ if (r === 9 && c === 9) {
         );
         string.userData.isString = true;
         scene.add(string);
-          localStringHeight.push({
-            x: offsetX + c * spacing,
-            y: offsetZ + r * spacing,
-            row: r,
-            col: c,
-            pendantY: yOffset,         // pendant vertical position (for reference)
-            stringHeight: stringHeight // actual string height
-          })
-      }
 
+        localStringHeight.push({
+          x: offsetZ + r * spacing,
+          y: offsetX + c * spacing,
+          row: r,
+          col: c,
+          pendantY: yOffset,
+          stringHeight,
+        });
+      }
     }
 
-        allStringHeightRef.current = localStringHeight;
-
-          // Call parent callback to update
-          if (onStringHeightsUpdate) {
-            onStringHeightsUpdate(localStringHeight);
-          }
-          
-        // console.log("All string heights:", allStringHeightRef.current);
+    if (onStringHeightsUpdate) onStringHeightsUpdate(localStringHeight);
 
     const surfaceMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(surfaceWidth, surfaceLength),
@@ -245,83 +234,16 @@ if (r === 9 && c === 9) {
         side: THREE.DoubleSide,
       })
     );
+
     surfaceMesh.rotation.x = -Math.PI / 2;
     surfaceMesh.position.set(0, surfaceHeight, 0);
     surfaceMesh.userData.isSurface = true;
     scene.add(surfaceMesh);
-
-    // Add dimension lines
-    const camera = cameraRef.current;
-
-    createDimensionLine(
-      new THREE.Vector3(-surfaceWidth / 2, 0, surfaceLength / 2),
-      new THREE.Vector3(surfaceWidth / 2, 0, surfaceLength / 2),
-      `${surfaceWidth.toFixed(0)} mm`,
-      scene,
-      camera
-    );
-
-    createDimensionLine(
-      new THREE.Vector3(surfaceWidth / 2, 0, -surfaceLength / 2),
-      new THREE.Vector3(surfaceWidth / 2, 0, surfaceLength / 2),
-      `${surfaceLength.toFixed(0)} mm`,
-      scene,
-      camera
-    );
-
-    const h = parseInt(surfaceHeight, 10);
-    createDimensionLine(
-      new THREE.Vector3(surfaceWidth / 2, 0, surfaceLength / 2),
-      new THREE.Vector3(surfaceWidth / 2, h, surfaceLength / 2),
-      `${h.toFixed(0)} mm`,
-      scene,
-      camera
-    );
   };
-
-  function createDimensionLine(start, end, label, scene, camera) {
-    const material = new THREE.LineBasicMaterial({ color: 0xcffadb });
-    const points = [start, end];
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const line = new THREE.Line(geometry, material);
-    scene.add(line);
-    dimensionLines.current.push(line);
-
-    const div = document.createElement("div");
-    div.style.position = "absolute";
-    div.style.color = "rgba(0,0,0,0.7)";
-    div.style.background = "rgba(255,255,255,0.7)";
-    div.style.padding = "2px 6px";
-    div.style.borderRadius = "4px";
-    div.style.fontSize = "10px";
-    div.style.zIndex = "20";
-    div.innerHTML = label;
-    document.body.appendChild(div);
-    dimensionLabels.current.push(div);
-
-    const updateLabelPosition = () => {
-      const midpoint = new THREE.Vector3()
-        .addVectors(start, end)
-        .multiplyScalar(0.5);
-      midpoint.project(camera);
-      const x = (midpoint.x * 0.5 + 0.6) * window.innerWidth;
-      const y = (-midpoint.y * 0.5 + 0.5) * window.innerHeight;
-      div.style.left = `${x - div.clientWidth / 2}px`;
-      div.style.top = `${y - div.clientHeight / 2}px`;
-    };
-
-    function animateLabel() {
-      updateLabelPosition();
-      requestAnimationFrame(animateLabel);
-    }
-    animateLabel();
-  }
 
   function clearDimensionLabels() {
     dimensionLabels.current.forEach((label) => {
-      if (label && label.parentNode) {
-        label.parentNode.removeChild(label);
-      }
+      if (label && label.parentNode) label.parentNode.removeChild(label);
     });
     dimensionLabels.current = [];
   }
@@ -334,7 +256,7 @@ if (r === 9 && c === 9) {
     camera.updateProjectionMatrix();
     renderer.setSize(container.clientWidth, container.clientHeight);
   };
-  
+
   useEffect(() => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -342,7 +264,5 @@ if (r === 9 && c === 9) {
 
   return <div ref={containerRef} style={{ flex: 1 }} />;
 };
-
-
 
 export default ObjFile;

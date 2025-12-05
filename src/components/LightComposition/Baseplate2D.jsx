@@ -1,57 +1,178 @@
-import React, { useRef, useEffect } from "react";
+// ⚡ FINAL VERSION — Correctly Aligned 2D Plan (Length = Horizontal, Width = Vertical)
 
-const Baseplate2D = ({ stringHeights, surface }) => {
+import React, { useEffect, useRef } from "react";
+
+export default function Baseplate2D({ stringHeights, surface }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
+    if (!stringHeights || stringHeights.length === 0 || !surface) return;
+
+    const plateWidth = Number(surface.width);   // short side  (3D X axis)
+    const plateLength = Number(surface.length); // long side   (3D Z axis)
+
+    if (!plateWidth || !plateLength) return;
+
     const canvas = canvasRef.current;
-    if (!canvas || !surface) return;
     const ctx = canvas.getContext("2d");
 
-    const { width, length, baseOffset} = surface;
-    
-    const rwidth = length;
-    const rlength = width;
+    // -------------------------------------------------------------
+    // SCALE CANVAS — Length = horizontal, Width = vertical
+    // -------------------------------------------------------------
+    const margin = 80;
+    const maxSize = 900;
 
-    canvas.width = rwidth;
-    canvas.height = rlength;
-    console.log (`rwidth: ${rwidth}, rlength: ${rlength}`)
+    const scale = Math.min(
+      maxSize / plateLength,
+      maxSize / plateWidth
+    );
 
-    // Clear and fill background
-    ctx.clearRect(0, 0, rwidth, rlength);
-    ctx.fillStyle = "#f0f0f0";
-    ctx.fillRect(0, 0, rwidth, rlength);
+    const drawWidth = plateLength * scale; // horizontal dimension
+    const drawHeight = plateWidth * scale; // vertical dimension
 
-    // Draw holes
+    canvas.width = drawWidth + margin * 2;
+    canvas.height = drawHeight + margin * 2;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.translate(margin, margin);
+
+    // -------------------------------------------------------------
+    // DRAW BASEPLATE
+    // -------------------------------------------------------------
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, drawWidth, drawHeight);
+
+    // -------------------------------------------------------------
+    // DRAW PENDANTS — PERFECTLY CENTERED & ROTATED
+    // 3D:
+    //   s.x = width axis (columns)
+    //   s.y = length axis (rows)
+    //
+    // ROTATED 2D:
+    //   horizontal (X) = length = s.y
+    //   vertical   (Y) = width  = s.x
+    // -------------------------------------------------------------
     ctx.fillStyle = "#000";
-    ctx.font = "10px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.font = "12px Arial";
 
-    const maxCol = Math.max(...stringHeights.map(s => s.col), 1)+1;
-    const maxRow = Math.max(...stringHeights.map(s => s.row), 1)+1;
     stringHeights.forEach((s) => {
-      
-      const xoffset =(rwidth-((maxCol-1) * (rwidth / maxCol)))/2;
-      const yoffset =(rlength-((maxRow-1) * (rlength / maxRow)))/2;
-      
-      const x = (s.col * (rwidth / maxCol))+ xoffset;
-      const y = (s.row * (rlength / maxRow))+ yoffset;
-      console.log(xoffset+','+maxCol+ 'x: '+ (s.col+1) + 'x' + (rwidth / maxCol) +"="+ x)
+      // Convert from 3D coordinates to 2D millimeters
+      const xMm = s.y + plateLength / 2; // LENGTH → horizontal
+      const yMm = s.x + plateWidth / 2;  // WIDTH  → vertical
+
+      const xPx = xMm * scale;
+      const yPx = yMm * scale;
+
       ctx.beginPath();
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.arc(xPx, yPx, 4, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillText(`${s.row}-${s.col}`, x, y - 10);
+      ctx.fillText(`${s.row}-${s.col} (${s.stringHeight}cm)`, xPx + 8, yPx - 4);
     });
+
+    // -------------------------------------------------------------
+    // DIMENSION LINES (Corrected Orientation)
+    // Bottom horizontal = Length
+    // Right vertical = Width
+    // -------------------------------------------------------------
+    drawDimensionHorizontal(ctx, 0, drawHeight + 30, drawWidth, `${plateLength} mm`);
+    drawDimensionVertical(ctx, drawWidth + 30, 0, drawHeight, `${plateWidth} mm`);
+
   }, [stringHeights, surface]);
 
+  // ---------------------------------------------------------
+  // HELPER: HORIZONTAL DIMENSION LINE
+  // ---------------------------------------------------------
+  function drawDimensionHorizontal(ctx, startX, startY, totalLength, label) {
+    ctx.strokeStyle = "#444";
+    ctx.lineWidth = 1;
+
+    // Extension lines
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(startX, startY + 20);
+    ctx.moveTo(startX + totalLength, startY);
+    ctx.lineTo(startX + totalLength, startY + 20);
+    ctx.stroke();
+
+    // Main dimension line
+    ctx.beginPath();
+    ctx.moveTo(startX, startY + 10);
+    ctx.lineTo(startX + totalLength, startY + 10);
+    ctx.stroke();
+
+    // Arrows
+    drawArrow(ctx, startX, startY + 10, 1);
+    drawArrow(ctx, startX + totalLength, startY + 10, -1);
+
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "center";
+    ctx.fillText(label, startX + totalLength / 2, startY + 35);
+  }
+
+  // ---------------------------------------------------------
+  // HELPER: VERTICAL DIMENSION LINE
+  // ---------------------------------------------------------
+  function drawDimensionVertical(ctx, startX, startY, totalLength, label) {
+    ctx.strokeStyle = "#444";
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(startX + 20, startY);
+    ctx.moveTo(startX, startY + totalLength);
+    ctx.lineTo(startX + 20, startY + totalLength);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(startX + 10, startY);
+    ctx.lineTo(startX + 10, startY + totalLength);
+    ctx.stroke();
+
+    drawArrowVertical(ctx, startX + 10, startY, 1);
+    drawArrowVertical(ctx, startX + 10, startY + totalLength, -1);
+
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "left";
+    ctx.fillText(label, startX + 30, startY + totalLength / 2);
+  }
+
+  // ---------------------------------------------------------
+  // ARROWS
+  // ---------------------------------------------------------
+  function drawArrow(ctx, x, y, direction) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 6 * direction, y - 6);
+    ctx.lineTo(x + 6 * direction, y + 6);
+    ctx.closePath();
+    ctx.fillStyle = "#444";
+    ctx.fill();
+  }
+
+  function drawArrowVertical(ctx, x, y, direction) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - 6, y + 6 * direction);
+    ctx.lineTo(x + 6, y + 6 * direction);
+    ctx.closePath();
+    ctx.fillStyle = "#444";
+    ctx.fill();
+  }
+
   return (
-    <div style={{ padding: "20px" }}>
-      <h3>Baseplate Hole Layout</h3>
-      <canvas ref={canvasRef} style={{ border: "1px solid #333" }} />
+    <div style={{ textAlign: "center", padding: 20 }}>
+      <h2 style={{ marginBottom: 10 }}>2D Plan — Top View</h2>
+      <canvas
+        ref={canvasRef}
+        style={{
+          border: "1px solid #ccc",
+          background: "#fff",
+        }}
+      />
     </div>
   );
-};
-
-export default Baseplate2D;
+}

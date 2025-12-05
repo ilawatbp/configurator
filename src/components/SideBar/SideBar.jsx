@@ -3,7 +3,7 @@ import "./SideBar.css";
 import { Box, ListTodo, Lightbulb } from "lucide-react";
 export default function SideBar({ handleTabClick, btnClicked }) {
   return (
-    <div className="hidden md:flex sidebar-container">
+    <div className="hidden md:flex sidebar-container bg-white">
       <img className="margin-auto" src={logo} alt="icon" />
       <div className="flex flex-col h-[50vh] justify-center gap-10">
         <Lightbulb
