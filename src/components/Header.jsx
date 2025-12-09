@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import './Header.css'
-import logo from "../../assets/logo icon.png";
+import logo from "../assets/logo icon.png";
 export default function Header({handleTabClick}){
     const [isClickBurger, setIsClickBurger] = useState(false)
 

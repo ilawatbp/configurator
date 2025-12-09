@@ -68,7 +68,8 @@ export default function Baseplate2D({ stringHeights, surface }) {
       ctx.arc(xPx, yPx, 4, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillText(`${s.row}-${s.col} (${s.stringHeight}cm)`, xPx + 8, yPx - 4);
+      // ctx.fillText(`${s.row}-${s.col} (${s.stringHeight}cm)`, xPx + 8, yPx - 4);
+      ctx.fillText(`${s.row}-${s.col}`, xPx - 9, yPx - 7);
     });
 
     // -------------------------------------------------------------
@@ -116,29 +117,46 @@ export default function Baseplate2D({ stringHeights, surface }) {
   // HELPER: VERTICAL DIMENSION LINE
   // ---------------------------------------------------------
   function drawDimensionVertical(ctx, startX, startY, totalLength, label) {
-    ctx.strokeStyle = "#444";
-    ctx.lineWidth = 1;
+  ctx.strokeStyle = "#444";
+  ctx.lineWidth = 1;
 
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(startX + 20, startY);
-    ctx.moveTo(startX, startY + totalLength);
-    ctx.lineTo(startX + 20, startY + totalLength);
-    ctx.stroke();
+  // Extension lines
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(startX + 20, startY);
+  ctx.moveTo(startX, startY + totalLength);
+  ctx.lineTo(startX + 20, startY + totalLength);
+  ctx.stroke();
 
-    ctx.beginPath();
-    ctx.moveTo(startX + 10, startY);
-    ctx.lineTo(startX + 10, startY + totalLength);
-    ctx.stroke();
+  // Main dimension line
+  ctx.beginPath();
+  ctx.moveTo(startX + 10, startY);
+  ctx.lineTo(startX + 10, startY + totalLength);
+  ctx.stroke();
 
-    drawArrowVertical(ctx, startX + 10, startY, 1);
-    drawArrowVertical(ctx, startX + 10, startY + totalLength, -1);
+  // Arrows
+  drawArrowVertical(ctx, startX + 10, startY, 1);
+  drawArrowVertical(ctx, startX + 10, startY + totalLength, -1);
 
-    ctx.font = "14px Arial";
-    ctx.fillStyle = "#000";
-    ctx.textAlign = "left";
-    ctx.fillText(label, startX + 30, startY + totalLength / 2);
-  }
+  // -----------------------------------------------------
+  // 🔥 ROTATED VERTICAL TEXT (perfectly centered)
+  // -----------------------------------------------------
+  ctx.save(); // Save original canvas state
+
+  // Move to the center of the vertical dimension line
+  ctx.translate(startX + 35, startY + totalLength / 2);
+
+  // Rotate 90° counter-clockwise (text reads bottom → top)
+  ctx.rotate(-Math.PI / 2);
+
+  ctx.font = "14px Arial";
+  ctx.fillStyle = "#000";
+  ctx.textAlign = "center";
+  ctx.fillText(label, 0, 0);
+
+  ctx.restore(); // Return canvas to normal
+}
+
 
   // ---------------------------------------------------------
   // ARROWS
@@ -164,9 +182,10 @@ export default function Baseplate2D({ stringHeights, surface }) {
   }
 
   return (
-    <div style={{ textAlign: "center", padding: 20 }}>
-      <h2 style={{ marginBottom: 10 }}>2D Plan — Top View</h2>
+    <div style={{ textAlign: "center" }}>
+      {/* <h2 style={{ marginBottom: 10 }}>2D Plan — Top View</h2> */}
       <canvas
+        className="w-full"
         ref={canvasRef}
         style={{
           border: "1px solid #ccc",

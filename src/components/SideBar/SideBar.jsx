@@ -6,30 +6,30 @@ export default function SideBar({ handleTabClick, btnClicked }) {
     <div className="hidden md:flex sidebar-container bg-white">
       <img className="margin-auto" src={logo} alt="icon" />
       <div className="flex flex-col h-[50vh] justify-center gap-10">
-        <Lightbulb
-          className={`min-w-7 min-h-9 py-1 ${
-            btnClicked === "type" ? "active" : undefined
-          } transition-all duration-500 ease-in-out`}
-          strokeWidth={1}
-          onClick={handleTabClick}
-          data-name="type"
-        />
+
+        <div className="bg-red" onClick={() => handleTabClick("type")}>
+          <Lightbulb
+            className={`min-w-7 min-h-9 py-1 ${btnClicked === "type" ? "active" : undefined
+              } transition-all duration-500 ease-in-out`}
+            strokeWidth={1}
+          />
+        </div>
+
+        <div className="bg-red" onClick={() => handleTabClick("detail")}>
         <ListTodo
-          className={`min-w-7 min-h-9 pb-1 ${
-            btnClicked === "detail" ? "active" : undefined
-          } transition-all duration-500 ease-in-out`}
+          className={`min-w-7 min-h-9 pb-1 ${btnClicked === "detail" ? "active" : undefined
+            } transition-all duration-500 ease-in-out`}
           strokeWidth={1}
-          onClick={handleTabClick}
-          data-name="detail"
         />
+        </div>
+
+        <div className="bg-red" onClick={() => handleTabClick("composition")}>
         <Box
-          className={`min-w-7 min-h-9 pb-1 ${
-            btnClicked === "composition" ? "active" : undefined
-          } transition-all duration-500 ease-in-out`}
+          className={`min-w-7 min-h-9 pb-1 ${btnClicked === "composition" ? "active" : undefined
+            } transition-all duration-500 ease-in-out`}
           strokeWidth={1}
-          onClick={handleTabClick}
-          data-name="composition"
         />
+        </div>
       </div>
     </div>
   );

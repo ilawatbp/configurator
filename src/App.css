@@ -2,6 +2,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: blue;
 }
 .main-container{
   display: flex;
@@ -25,4 +26,14 @@ box-sizing: border-box;
 
 .ContentEffect {
   animation: contentOpacity 1s ease forwards;
+}
+
+
+/* Hide scrollbar but keep scrolling */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

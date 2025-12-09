@@ -23,12 +23,12 @@ export default function LightComposition() {
     const surfaceLength =
       config.surfaceLength === 0
         ? (config.cols - 1) * config.spacing +
-          parseInt(config.baseOffset || 0, 10)
+        parseInt(config.baseOffset || 0, 10)
         : config.surfaceLength;
     const surfaceWidth =
       config.surfaceWidth === 0
         ? (config.rows - 1) * config.spacing +
-          parseInt(config.baseOffset || 0, 10)
+        parseInt(config.baseOffset || 0, 10)
         : config.surfaceWidth;
 
     const data = {
@@ -95,11 +95,10 @@ export default function LightComposition() {
           <span onClick={handlePanel}>&times;</span>
         </div>
         <div
-          className={`${Styles.panel} ${
-            panelOpen
-              ? "opacity-1 w-[290px] transition-[opacity] delay-200"
-              : "opacity-0 w-[2px]"
-          } transition-[width] duration-500`}
+          className={`${Styles.panel} ${panelOpen
+            ? "opacity-1 w-[290px] transition-[opacity] delay-200"
+            : "opacity-0 w-[2px]"
+            } transition-[width] duration-500 scrollbar-hide`}
         >
           <label>
             Pattern:
@@ -111,7 +110,7 @@ export default function LightComposition() {
               {[
                 "flat",
                 "dome",
-                "reverseDome", // ⭐ NEW PATTERN ADDED
+                "reverseDome",
                 "wave",
                 "ripple",
                 "spiral",
@@ -191,19 +190,19 @@ export default function LightComposition() {
                   name === "baseOffset"
                     ? isBaseOffsetShow
                       ? {
-                          opacity: 0,
-                          maxHeight: 0,
-                          overflow: "hidden",
-                          transition:
-                            "opacity 1s ease, max-height 0.5s ease 0.3s",
-                        }
+                        opacity: 0,
+                        maxHeight: 0,
+                        overflow: "hidden",
+                        transition:
+                          "opacity 1s ease, max-height 0.5s ease 0.3s",
+                      }
                       : {
-                          opacity: 1,
-                          maxHeight: "500px",
-                          overflow: "hidden",
-                          transition:
-                            "opacity 1s ease 0.5s, max-height 2s ease 0.5s",
-                        }
+                        opacity: 1,
+                        maxHeight: "500px",
+                        overflow: "hidden",
+                        transition:
+                          "opacity 1s ease 0.5s, max-height 2s ease 0.5s",
+                      }
                     : undefined
                 }
               >
@@ -238,8 +237,8 @@ export default function LightComposition() {
                     style={
                       isInactive
                         ? {
-                            color: "#ddd",
-                          }
+                          color: "#ddd",
+                        }
                         : {}
                     }
                   />
@@ -261,10 +260,9 @@ export default function LightComposition() {
         </div>
         <button
           className={`mx-auto mt-auto mb-10
-            ${
-              panelOpen
-                ? "opacity-1 w-3/4 transition-all delay-500"
-                : "opacity-0 w-0"
+            ${panelOpen
+              ? "opacity-1 w-3/4 transition-all delay-500"
+              : "opacity-0 w-0"
             }`}
           onClick={handleGetData}
         >
@@ -275,27 +273,50 @@ export default function LightComposition() {
 
       <div>
         <Modal onClick={handleModal} modalState={ismodalOpen}>
-          <div className="overflow-auto max-h-[80vh] w-[1000px]">
+<div className="overflow-y-auto max-h-[80vh] w-[1500px] scrollbar-hide">
             {currentData ? (
               <div>
-                <h1>pattern</h1>
-                <p>{currentData.pattern}</p>
-                <h1>Strings</h1>
-                {/* <table>
-                  {currentData.stringHeights.map((string, index) => (
-                    <tr>
-                      <td>{`${index + 1})`}</td>
-                      <td>{`coordinates: ${string.row}-${string.col}, `}</td>
-                      <td>{`height: ${string.stringHeight} cm`}</td>
-                    </tr>
-                  ))}
-                </table> */}
+                <h1 className="text-3xl">LOREM IPSUM</h1>
+                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Excepturi, dicta fugiat eaque iusto nam hic possimus. </p>
 
-                <Baseplate2D
-                  stringHeights={currentData.stringHeights}
-                  surface={currentData.surface}
-                  config={config}
-                />
+                {/* 3D IMAGE HERE */}
+                <div className="w-[50%] m-auto" style={{ transform: "rotate(90deg)" }}>
+                  <Baseplate2D
+                    stringHeights={currentData.stringHeights}
+                    surface={currentData.surface}
+                    config={config}
+                  />
+                </div>
+
+                <div className="px-4">
+                  <h1>Technical Specs</h1>
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="py-2">POSITION</th>
+                        <th className="py-2">LIGHT TYPE</th>
+                        <th className="py-2">COLOR</th>
+                        <th className="py-2">FITTING COLOR</th>
+                        <th className="py-2">CABLE LENGTH</th>
+                        <th className="py-2">ITEMCODE</th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y">
+                      {currentData.stringHeights.map((string, index) => (
+                        <tr key={index} className="border-b">
+                          <td className="py-2">{`${string.row}-${string.col}`}</td>
+                          <td className="py-2"></td>
+                          <td className="py-2"></td>
+                          <td className="py-2"></td>
+                          <td className="py-2">{`${string.stringHeight} cm`}</td>
+                          <td className="py-2"></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                </div>
               </div>
             ) : (
               // col: 1

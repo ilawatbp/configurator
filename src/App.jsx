@@ -1,6 +1,5 @@
-import Header from "./components/Header/Header.jsx";
+import Header from "./components/Header.jsx";
 import TabChoice from "./components/TabChoice/TabChoice.jsx";
-import Content from "./components/Content/Content.jsx";
 import SideBar from "./components/SideBar/SideBar.jsx";
 
 import LightComposition from "./components/LightComposition/LightComposition";
@@ -13,9 +12,8 @@ import { useState } from "react";
 function App() {
   const [btnClicked, setBtnClicked] = useState("type");
 
-  function handleTabClick(event) {
-    const name = event.target.dataset.name;
-    setBtnClicked(name);
+  function handleTabClick(value) {
+    setBtnClicked(value);
   }
   let content = null;
   const clickValue = btnClicked;
@@ -31,23 +29,16 @@ function App() {
   return (
     <>
       <div>
-        <Header handleTabClick={handleTabClick}/>
+        <Header handleTabClick={handleTabClick} />
         <div className="main-container">
-          <div className="side-bar">
+          <div className="side-bar ">
             <SideBar
               handleTabClick={handleTabClick}
               btnClicked={btnClicked}
             ></SideBar>
           </div>
-          <div className="app-container">
-            {/* <TabChoice
-            btnClicked={btnClicked}
-            handleTabClick={handleTabClick}
-          ></TabChoice> */}
-            {/* <Content className="ContentEffect">{content}</Content> */}
-            <Content key={btnClicked} className="ContentEffect">
-              {content}
-            </Content>
+          <div className="w-full ">
+            {content}
           </div>
         </div>
       </div>
