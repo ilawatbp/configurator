@@ -196,24 +196,24 @@ const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
       surfaceWidth: inputSurfaceWidth,
     } = config;
 
-const rowsN = Math.max(1, parseInt(rows, 10) || 1);
-const colsN = Math.max(1, parseInt(cols, 10) || 1);
+    const rowsN = Number(rows);
+    const colsN = Number(cols);
     const minY = Math.min(Number(lowest), Number(highest));
     const maxY = Math.max(Number(lowest), Number(highest));
 
     let surfaceLength = inputSurfaceLength;
     let surfaceWidth = inputSurfaceWidth;
 
-if (surfaceWidth === 0 && surfaceLength === 0) {
-  surfaceLength = (rowsN - 1) * spacing + Number(baseOffset || 0); // Z = ROWS
-  surfaceWidth  = (colsN - 1) * spacing + Number(baseOffset || 0); // X = COLS
-}
+    if (surfaceWidth === 0 && surfaceLength === 0) {
+      surfaceLength = (colsN - 1) * spacing + Number(baseOffset || 0); // Z
+      surfaceWidth = (rowsN - 1) * spacing + Number(baseOffset || 0);  // X
+    }
 
     // DIMENSIONS — EDGE ALIGNED
     const widthLine = createDimensionLine(
       new THREE.Vector3(-surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
       new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
-      `${surfaceWidth} cm`
+      `${surfaceWidth} mm`
     );
     scene.add(widthLine);
     dimensionLines.current.push(widthLine);
@@ -221,18 +221,13 @@ if (surfaceWidth === 0 && surfaceLength === 0) {
     const lengthLine = createDimensionLine(
       new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, -surfaceLength / 2),
       new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
-      `${surfaceLength} cm`
+      `${surfaceLength} mm`
     );
     scene.add(lengthLine);
     dimensionLines.current.push(lengthLine);
 
-    // GRID SIZE
-const gridWidth  = (colsN - 1) * spacing; // X
-const gridLength = (rowsN - 1) * spacing; // Z
-
-// CENTER GRID INSIDE SURFACE
-const offsetX = -surfaceWidth / 2 + (surfaceWidth - gridWidth) / 2;
-const offsetZ = -surfaceLength / 2 + (surfaceLength - gridLength) / 2;
+    const offsetX = -((colsN - 1) / 2) * spacing;
+    const offsetZ = -((rowsN - 1) / 2) * spacing;
     const centerRow = (rowsN - 1) / 2;
     const centerCol = (colsN - 1) / 2;
     const maxGridRadius = Math.sqrt(
