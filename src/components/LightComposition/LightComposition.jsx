@@ -5,7 +5,12 @@ import ObjFile from "./ObjFile.jsx";
 import Modal from "../Modal.jsx";
 import Baseplate2D from "./Baseplate2D";
 
+import { useWorkingModel } from "../../context/WorkingModelContext";
+
 export default function LightComposition() {
+
+  const { workingModel, setWorkingModel } = useWorkingModel();
+
   const objRef = useRef(null);
 
   const [currentData, setCurrentData] = useState(null);
@@ -183,7 +188,7 @@ const handleGetData = () => {
               </div>
             </div>
           ))}
-
+          {workingModel}
         </div>
 
         {/* Generate Data */}

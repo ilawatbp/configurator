@@ -14,6 +14,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 
+import { useWorkingModel } from "../../context/WorkingModelContext";
+
+
+
+
 /* =====================================================
    DIMENSION LINE HELPER
    ===================================================== */
@@ -65,6 +70,8 @@ const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
 
   const dimensionLines = useRef([]);
 
+  const { workingModel} = useWorkingModel();
+
   /* =====================================================
      EXPOSE EXPORT FUNCTION
      ===================================================== */
@@ -100,6 +107,7 @@ const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
      INIT THREE.JS
      ===================================================== */
   useEffect(() => {
+
     const container = containerRef.current;
     const scene = sceneRef.current;
     scene.background = new THREE.Color(0xc7c7c7);
@@ -141,9 +149,11 @@ const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
     };
     animate();
 
+    
+
     const loader = new OBJLoader();
     loader.load(
-      import.meta.env.BASE_URL + "models/myModel.obj",
+      import.meta.env.BASE_URL + "models/"+workingModel+".obj",
       (obj) => {
         modelRef.current = obj;
         updateSceneWithConfig();
