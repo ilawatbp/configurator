@@ -11,7 +11,6 @@ export default function LightComposition() {
   const [currentData, setCurrentData] = useState(null);
   const [ismodalOpen, setIsModalOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
-  const [generated, setGenerated] = useState(false);
   const [stringHeights, setStringHeights] = useState([]);
 
   const [config, setConfig] = useState({
@@ -185,20 +184,6 @@ const handleGetData = () => {
             </div>
           ))}
 
-          {/* Generate */}
-          <button className="mt-6" onClick={handleGenerate}>
-            Generate
-          </button>
-
-          {/* Export */}
-          {generated && (
-            <button
-              className="mt-3 bg-black text-white"
-              onClick={() => objRef.current?.exportOBJ()}
-            >
-              Export to SketchUp (OBJ)
-            </button>
-          )}
         </div>
 
         {/* Generate Data */}
@@ -224,7 +209,29 @@ const handleGetData = () => {
         {currentData && (
           <div className="overflow-y-auto max-h-[80vh] w-[1500px] scrollbar-hide">
             <h1 className="text-3xl mb-4">Lighting Configuration</h1>
+          {/* Export */}
+            <div className="flex gap-2">
+              <button
+                className="mt-3 bg-black text-white p-4 rounded-md hover:bg-[#3bb44b]"
+                onClick={() => objRef.current?.exportOBJ()}
+              >
+                Export to OBJ
+              </button>
+              <button
+                className="mt-3 bg-black text-white p-4 rounded-md hover:bg-[#3bb44b]"
+              >
+                Export to PDF
+              </button>
+              <button
+                className="mt-3 bg-black text-white p-4 rounded-md hover:bg-[#3bb44b]"
+              >
+                SAVE
+              </button>
+            </div>
 
+            {/* 3D IMAGE */}
+              <div></div>
+            {/* 2D image */}
             <div className="w-[50%] m-auto">
               <Baseplate2D
                 stringHeights={currentData.stringHeights}
