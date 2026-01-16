@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useWorkingModel } from "../context/WorkingModelContext";
+import modelList from "../../public/data";
 
 export default function LightType() {
   const [openModal, setOpenModal] = useState(false);
@@ -9,45 +10,6 @@ export default function LightType() {
 
   const { workingModel, setWorkingModel, setBtnClicked } = useWorkingModel();
 
-
-  const modelList = [
-    {
-      id: "c1",
-      name: "cylinder",
-      images: [
-        import.meta.env.BASE_URL + "/crystals/crystal1/crystal1.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal1/mock 1.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal1/mock 2.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal1/mock 3.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal1/mock 4.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal1/mock 5.jpg",
-      ]
-    },
-    {
-      id: "c2",
-      name: "teardrop",
-      images: [
-        import.meta.env.BASE_URL + "/crystals/crystal 2/crystal2.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 2/mock 1.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 2/mock 2.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 2/mock 3.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 2/mock 4.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 2/mock 5.jpg",
-      ]
-    },
-    {
-      id: "c3",
-      name: "circle",
-      images: [
-        import.meta.env.BASE_URL + "/crystals/crystal 3/crystal3.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 3/mock 1.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 3/mock 2.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 3/mock 3.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 3/mock 4.jpg",
-        import.meta.env.BASE_URL + "/crystals/crystal 3/mock 5.jpg",
-      ]
-    }
-  ];
 
   const openCarousel = (index) => {
     setActiveIndex(index);
@@ -90,7 +52,7 @@ export default function LightType() {
                             group-hover:opacity-100 opacity-0 duration-300 transition-all">
               <button 
               onClick={() => {
-                setWorkingModel(each.name);
+                setWorkingModel(prev => ({...prev, model:each.id, modelName:each.name}));
                  setBtnClicked("detail");
               }
               }

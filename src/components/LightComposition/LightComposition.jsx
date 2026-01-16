@@ -189,7 +189,7 @@ const handleGetData = () => {
               </div>
             </div>
           ))}
-          {workingModel}
+        {/* {Object.entries(workingModel).map(([val, value]) => value)} */}
         </div>
 
         {/* Generate Data */}

@@ -16,6 +16,18 @@ import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 
 import { useWorkingModel } from "../../context/WorkingModelContext";
 
+  const colorsHex = [
+  { name: "red", hex: "#B91C1C" },
+  { name: "green", hex: "#15803D" },
+  { name: "blue", hex: "#2563EB" },
+  { name: "yellow", hex: "#CA8A04" },
+  { name: "cyan", hex: "#0891B2" },
+  { name: "magenta", hex: "#9D174D" },
+  { name: "black", hex: "#111827" },
+  { name: "white", hex: "#F9FAFB" },
+  { name: "gray", hex: "#6B7280" },
+  { name: "clear", hex: "#F9FAFB" }
+];
 
 
 
@@ -72,36 +84,48 @@ const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
 
   const { workingModel} = useWorkingModel();
 
+  function getHexColor(){ // to convert color to hex
+   return colorsHex.find(color => color.name == workingModel.color).hex
+}
+
+const configRef = useRef(config);
+
+useEffect(() => {
+  configRef.current = config;
+}, [config]);
+
   /* =====================================================
      EXPOSE EXPORT FUNCTION
      ===================================================== */
   useImperativeHandle(ref, () => ({
     exportOBJ,
   }));
+function exportOBJ() {
+  const exporter = new OBJExporter();
+  const exportGroup = new THREE.Group();
 
-  function exportOBJ() {
-    const exporter = new OBJExporter();
-    const exportGroup = new THREE.Group();
-    exportGroup.name = "LightingConfigurator";
+  sceneRef.current.traverse((obj) => {
+    if (obj.userData?.isPendant || obj.userData?.isString || obj.userData?.isSurface) {
+      exportGroup.add(obj.clone(true));
+    }
+  });
 
-    sceneRef.current.traverse((obj) => {
-      if (
-        obj.userData?.isPendant ||
-        obj.userData?.isString ||
-        obj.userData?.isSurface
-      ) {
-        exportGroup.add(obj.clone(true));
-      }
-    });
+  exportGroup.updateMatrixWorld(true);
 
-    const objData = exporter.parse(exportGroup);
-    const blob = new Blob([objData], { type: "text/plain" });
+  // ✅ Unit fix: if your target app imports 100x too big, scale down 100x
+  const EXPORT_SCALE = 0.01;  // try 0.01 first
+  exportGroup.scale.setScalar(EXPORT_SCALE);
+  exportGroup.updateMatrixWorld(true);
 
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "lighting-configurator.obj";
-    link.click();
-  }
+  const objData = exporter.parse(exportGroup);
+  const blob = new Blob([objData], { type: "text/plain" });
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "lighting-configurator.obj";
+  link.click();
+}
+
 
   /* =====================================================
      INIT THREE.JS
@@ -122,8 +146,27 @@ const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
     cameraRef.current = camera;
 
     // Helpers
-    scene.add(new THREE.AxesHelper(300));
-    scene.add(new THREE.GridHelper(1000, 50));
+
+    //scene.add(new THREE.AxesHelper(300)); // red green blue axis (Y (Height green),X (Width red) Z (Length blue))
+    // scene.add(new THREE.GridHelper(1000, 50));
+    //this 2 is the original helpers 
+
+    const axes = new THREE.AxesHelper(300);
+    const colors = axes.geometry.attributes.color;
+    axes.material.transparent = true; // REQUIRED
+    axes.material.opacity = 0.1;
+    colors.needsUpdate = true;
+    scene.add(axes);
+
+
+    const belowGrid = new THREE.GridHelper(1000, 50);
+    belowGrid.material.color.set(0x000000)
+    belowGrid.material.opacity = 0.05;
+    belowGrid.material.transparent = true;
+    scene.add(belowGrid);
+
+
+
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -152,13 +195,36 @@ const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
     
 
     const loader = new OBJLoader();
-    loader.load(
-      import.meta.env.BASE_URL + "models/"+workingModel+".obj",
-      (obj) => {
-        modelRef.current = obj;
-        updateSceneWithConfig();
-      }
-    );
+      loader.load(
+        import.meta.env.BASE_URL + "models/" + workingModel.modelName + ".obj",
+        (obj) => {
+
+          // ✅ CHANGE OBJ COLOR HERE (before cloning)
+          obj.traverse((child) => {
+            if (child.isMesh) {
+              child.material = new THREE.MeshStandardMaterial({
+              color: getHexColor(),       // glass tint (white = clear)
+              roughness: 0.05,       // lower = clearer reflections
+              metalness: 0.0,
+
+              transmission: 1.0,     // TRUE glass (light passes through)
+              transparent: true,     // required for transmission/opacity behavior
+              opacity: 0.8,          // keep 1.0 when using transmission
+              ior: 1.5,              // glass ~1.45–1.52
+              thickness: 1.0,        // "volume" feel (tweak per model scale)
+              clearcoat: 1.0,
+              clearcoatRoughness: 0.05,
+
+              side: THREE.DoubleSide // useful if your glass is thin (no inner faces)
+              });
+            }
+          });
+
+          modelRef.current = obj;
+          updateSceneWithConfig();
+        }
+      );
+
 
     window.addEventListener("resize", handleResize);
 
@@ -312,8 +378,12 @@ const offsetZ = -surfaceLength / 2 + (surfaceLength - gridLength) / 2;
         const stringHeight = surfaceHeight - yOffset;
         const string = new THREE.Mesh(
           new THREE.CylinderGeometry(0.1, 0.1, stringHeight, 8),
-          new THREE.MeshStandardMaterial({ color: 0x292929 })
-        );
+          new THREE.MeshStandardMaterial({
+            color: 0xcccccc,   // silver base color
+            metalness: 0.9,    // high metal
+            roughness: 0.2,    // slight shine
+          })
+        );  
         string.position.set(
           pendant.position.x,
           yOffset + stringHeight / 2,
