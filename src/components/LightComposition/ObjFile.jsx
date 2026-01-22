@@ -262,7 +262,8 @@ function exportOBJ() {
     const {
       rows,
       cols,
-      spacing,
+      spacingL,
+      spacingW,
       pattern,
       surfaceHeight,
       lowest,
@@ -281,8 +282,8 @@ const colsN = Math.max(1, parseInt(cols, 10) || 1);
     let surfaceWidth = inputSurfaceWidth;
 
 if (surfaceWidth === 0 && surfaceLength === 0) {
-  surfaceLength = (rowsN - 1) * spacing + Number(baseOffset || 0); // Z = ROWS
-  surfaceWidth  = (colsN - 1) * spacing + Number(baseOffset || 0); // X = COLS
+  surfaceLength = (rowsN - 1) * spacingL + Number(baseOffset || 0); // Z = ROWS
+  surfaceWidth  = (colsN - 1) * spacingW + Number(baseOffset || 0); // X = COLS
 }
 
     // DIMENSIONS — EDGE ALIGNED
@@ -303,8 +304,8 @@ if (surfaceWidth === 0 && surfaceLength === 0) {
     dimensionLines.current.push(lengthLine);
 
     // GRID SIZE
-const gridWidth  = (colsN - 1) * spacing; // X
-const gridLength = (rowsN - 1) * spacing; // Z
+const gridWidth  = (colsN - 1) * spacingW; // X
+const gridLength = (rowsN - 1) * spacingL; // Z
 
 // CENTER GRID INSIDE SURFACE
 const offsetX = -surfaceWidth / 2 + (surfaceWidth - gridWidth) / 2;
@@ -368,9 +369,9 @@ const offsetZ = -surfaceLength / 2 + (surfaceLength - gridLength) / 2;
 
         const pendant = baseModel.clone();
         pendant.position.set(
-          offsetX + c * spacing,
+          offsetX + c * spacingW,
           yOffset,
-          offsetZ + r * spacing
+          offsetZ + r * spacingL
         );
         pendant.userData.isPendant = true;
         scene.add(pendant);
@@ -393,8 +394,8 @@ const offsetZ = -surfaceLength / 2 + (surfaceLength - gridLength) / 2;
         scene.add(string);
 
         localStringHeight.push({
-          x: offsetX + c * spacing,
-          y: offsetZ + r * spacing,
+          x: offsetX + c * spacingW,
+          y: offsetZ + r * spacingL,
           row: r,
           col: c,
           stringHeight,
