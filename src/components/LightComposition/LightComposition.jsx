@@ -11,7 +11,6 @@ export default function LightComposition() {
 
   const { workingModel, setWorkingModel } = useWorkingModel();
   
-
   const objRef = useRef(null);
 
   const [currentData, setCurrentData] = useState(null);
@@ -23,7 +22,6 @@ export default function LightComposition() {
     rows: 9,
     cols: 5,
     pattern: "wave",
-    //spacing: 20,
     spacingL:20,
     spacingW:20,
     surfaceHeight: 170,
@@ -32,6 +30,8 @@ export default function LightComposition() {
     baseOffset: 10,
     lowest: 0,
     highest: 150,
+    clipToShape: true,
+    circleSegments: 96,
   });
 
   /* ===============================
@@ -102,6 +102,7 @@ const handleGetData = () => {
       spacingW: config.spacingW, // (optional, but useful later)
       rows: config.rows,
       cols: config.cols,
+      shape: workingModel.surfaceShape, // "rect" | "circle"
     },
     pattern: config.pattern,
     pendantType: "Custom Pendant",
@@ -178,7 +179,6 @@ const handleGetData = () => {
             <div key={name} className={`transition-all duration-500 ease-in-out
                                       ${isSurfaceField && isSurfaceValue ? "opacity-0 max-h-0 scale-95": "opacity-1 max-h-40 scale-100"}
             `}>
-              {console.log(isSurfaceValue)}
               <label>{label}</label>
               <div className={name == "cols" || name == "spacingW" || name == "surfaceLength"  || name == "highest" ? 'mb-16' : null }>
                 <input
@@ -271,7 +271,7 @@ const handleGetData = () => {
                 <tbody>
                   {currentData.stringHeights.map((s, i) => (
                     <tr key={i} className="border-b">
-                      <td>{`R${s.row} C${s.col}`}</td>
+                      {workingModel.shape == "circle" ? (<td>{`${s.row}`}</td>) : (<td>{`R${s.row} C${s.col}`}</td>)}
                       <td>{`${s.stringHeight} cm`}</td>
                     </tr>
                   ))}

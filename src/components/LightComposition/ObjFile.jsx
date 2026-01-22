@@ -83,9 +83,10 @@ const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
   const dimensionLines = useRef([]);
 
   const { workingModel} = useWorkingModel();
+  const surfaceShape = workingModel.surfaceShape; //shape of baseplate
 
   function getHexColor(){ // to convert color to hex
-   return colorsHex.find(color => color.name == workingModel.color).hex
+   return colorsHex.find(color => color.name == workingModel.color).hex || "#F9FAFB";
 }
 
 const configRef = useRef(config);
@@ -134,7 +135,7 @@ function exportOBJ() {
 
     const container = containerRef.current;
     const scene = sceneRef.current;
-    scene.background = new THREE.Color(0xc7c7c7);
+    scene.background = new THREE.Color(0xfafafa);
 
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -241,6 +242,31 @@ function exportOBJ() {
   /* =====================================================
      MAIN SCENE GENERATOR (PATTERN LOGIC UNCHANGED)
      ===================================================== */
+
+  function generateSunflowerPoints(count, radius) {
+  const pts = [];
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // ~2.399963...
+
+  for (let i = 0; i < count; i++) {
+    // 0..1 area-uniform radius
+    const t = (i + 0.5) / count;
+    const r = Math.sqrt(t) * radius;
+
+    const theta = i * goldenAngle;
+
+    const x = r * Math.cos(theta);
+    const z = r * Math.sin(theta);
+
+    const distNorm = r / radius;            // 0..1
+    const angle01 = (theta % (Math.PI * 2)) / (Math.PI * 2); // 0..1
+
+    pts.push({ x, z, distNorm, angle01 });
+  }
+
+  return pts;
+}
+
+
   const updateSceneWithConfig = () => {
     const scene = sceneRef.current;
     const baseModel = modelRef.current;
@@ -286,30 +312,61 @@ if (surfaceWidth === 0 && surfaceLength === 0) {
   surfaceWidth  = (colsN - 1) * spacingW + Number(baseOffset || 0); // X = COLS
 }
 
-    // DIMENSIONS — EDGE ALIGNED
-    const widthLine = createDimensionLine(
-      new THREE.Vector3(-surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
-      new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
-      `${surfaceWidth} cm`
-    );
-    scene.add(widthLine);
-    dimensionLines.current.push(widthLine);
 
-    const lengthLine = createDimensionLine(
-      new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, -surfaceLength / 2),
-      new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
-      `${surfaceLength} cm`
-    );
-    scene.add(lengthLine);
-    dimensionLines.current.push(lengthLine);
+// to get the circle radius
+let circleRadius = 0;
+
+if (surfaceShape === "circle") {
+  const diameterBasis =
+    surfaceWidth && surfaceLength
+      ? Math.min(surfaceWidth, surfaceLength)
+      : (surfaceWidth || surfaceLength);
+
+  circleRadius = Math.max(1, Number(diameterBasis) / 2);
+}
+
+
+// DIMENSIONS — EDGE ALIGNED (RECT) / DIAMETER (CIRCLE)
+if (surfaceShape === "circle") {
+  const diameter = circleRadius * 2;
+
+  const diaLine = createDimensionLine(
+    new THREE.Vector3(-circleRadius, surfaceHeight + 5, 0),
+    new THREE.Vector3(circleRadius, surfaceHeight + 5, 0),
+    `${diameter} cm`
+  );
+  scene.add(diaLine);
+  dimensionLines.current.push(diaLine);
+
+} else {
+  const widthLine = createDimensionLine(
+    new THREE.Vector3(-surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
+    new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
+    `${surfaceWidth} cm`
+  );
+  scene.add(widthLine);
+  dimensionLines.current.push(widthLine);
+
+  const lengthLine = createDimensionLine(
+    new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, -surfaceLength / 2),
+    new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
+    `${surfaceLength} cm`
+  );
+  scene.add(lengthLine);
+  dimensionLines.current.push(lengthLine);
+}
+
 
     // GRID SIZE
 const gridWidth  = (colsN - 1) * spacingW; // X
 const gridLength = (rowsN - 1) * spacingL; // Z
 
-// CENTER GRID INSIDE SURFACE
-const offsetX = -surfaceWidth / 2 + (surfaceWidth - gridWidth) / 2;
-const offsetZ = -surfaceLength / 2 + (surfaceLength - gridLength) / 2;
+// CENTER GRID INSIDE SURFACE (RECT) / INSIDE CIRCLE BOUNDING SQUARE
+const effectiveSurfaceWidth  = (surfaceShape === "circle") ? (circleRadius * 2) : surfaceWidth;
+const effectiveSurfaceLength = (surfaceShape === "circle") ? (circleRadius * 2) : surfaceLength;
+
+const offsetX = -effectiveSurfaceWidth / 2 + (effectiveSurfaceWidth - gridWidth) / 2;
+const offsetZ = -effectiveSurfaceLength / 2 + (effectiveSurfaceLength - gridLength) / 2;
     const centerRow = (rowsN - 1) / 2;
     const centerCol = (colsN - 1) / 2;
     const maxGridRadius = Math.sqrt(
@@ -318,97 +375,175 @@ const offsetZ = -surfaceLength / 2 + (surfaceLength - gridLength) / 2;
 
     const localStringHeight = [];
 
-    for (let r = 0; r < rowsN; r++) {
-      for (let c = 0; c < colsN; c++) {
-        const dr = r - centerRow;
-        const dc = c - centerCol;
-        const dist = Math.sqrt(dr * dr + dc * dc);
-        const t = dist / maxGridRadius;
+if (surfaceShape === "circle") {
+  // total pendants from rows x cols slider
+  const total = rowsN * colsN;
 
-        let yOffset = minY;
+  // keep pendants slightly inside the plate edge
+  const margin = Math.max(0, Number(baseOffset || 0) * 0.5);
+  const usableRadius = Math.max(1, circleRadius - margin);
 
-        switch (pattern) {
-          case "dome":
-            yOffset = minY + (maxY - minY) * (1 - t) ** 2;
-            break;
-          case "reverseDome":
-            yOffset = minY + (maxY - minY) * t ** 2;
-            break;
-          case "wave":
-            yOffset =
-              (minY + maxY) / 2 +
-              (Math.sin(c * 0.5) + Math.cos(r * 0.5)) *
-                ((maxY - minY) / 2) *
-                0.5;
-            break;
-          case "ripple":
-            yOffset =
-              minY + (maxY - minY) * (Math.sin(dist * 1.5) * 0.5 + 0.5);
-            break;
-          case "spiral":
-            yOffset =
-              minY +
-              (maxY - minY) *
-                ((Math.atan2(dr, dc) + Math.PI) / (2 * Math.PI));
-            break;
-          case "diagonal":
-            yOffset =
-              minY + (maxY - minY) * ((r + c) / (rowsN + colsN - 2));
-            break;
-          case "checkerboard":
-            yOffset = (r + c) % 2 === 0 ? minY : maxY;
-            break;
-          case "random":
-            yOffset = minY + Math.random() * (maxY - minY);
-            break;
-          default:
-            yOffset = minY;
-        }
+  const points = generateSunflowerPoints(total, usableRadius);
 
-        yOffset = Math.floor(yOffset);
+  for (let i = 0; i < points.length; i++) {
+    const { x, z, distNorm, angle01 } = points[i];
 
-        const pendant = baseModel.clone();
-        pendant.position.set(
-          offsetX + c * spacingW,
-          yOffset,
-          offsetZ + r * spacingL
-        );
-        pendant.userData.isPendant = true;
-        scene.add(pendant);
+    let yOffset = minY;
 
-        const stringHeight = surfaceHeight - yOffset;
-        const string = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.1, 0.1, stringHeight, 8),
-          new THREE.MeshStandardMaterial({
-            color: 0xcccccc,   // silver base color
-            metalness: 0.9,    // high metal
-            roughness: 0.2,    // slight shine
-          })
-        );  
-        string.position.set(
-          pendant.position.x,
-          yOffset + stringHeight / 2,
-          pendant.position.z
-        );
-        string.userData.isString = true;
-        scene.add(string);
+    // ✅ Pattern using distance/angle (works great for circle layouts)
+    switch (pattern) {
+      case "dome":
+        yOffset = minY + (maxY - minY) * (1 - distNorm) ** 2;
+        break;
 
-        localStringHeight.push({
-          x: offsetX + c * spacingW,
-          y: offsetZ + r * spacingL,
-          row: r,
-          col: c,
-          stringHeight,
-        });
-      }
+      case "reverseDome":
+        yOffset = minY + (maxY - minY) * distNorm ** 2;
+        break;
+
+      case "ripple":
+        yOffset = minY + (maxY - minY) * (Math.sin(distNorm * Math.PI * 3) * 0.5 + 0.5);
+        break;
+
+      case "spiral":
+        yOffset = minY + (maxY - minY) * angle01;
+        break;
+
+      case "random":
+        yOffset = minY + Math.random() * (maxY - minY);
+        break;
+
+      // patterns that were grid-based → fallback
+      default:
+        yOffset = minY;
     }
 
-    onStringHeightsUpdate?.(localStringHeight);
+    yOffset = Math.floor(yOffset);
+
+    const pendant = baseModel.clone();
+    pendant.position.set(x, yOffset, z);
+    pendant.userData.isPendant = true;
+    scene.add(pendant);
+
+    const stringHeight = surfaceHeight - yOffset;
+    const string = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.1, stringHeight, 8),
+      new THREE.MeshStandardMaterial({
+        color: 0xcccccc,
+        metalness: 0.9,
+        roughness: 0.2,
+      })
+    );
+
+    string.position.set(x, yOffset + stringHeight / 2, z);
+    string.userData.isString = true;
+    scene.add(string);
+
+    localStringHeight.push({
+      x,
+      y: z,
+      index: i,
+      stringHeight,
+    });
+  }
+} else {
+  //  ORIGINAL GRID behavior for rectangle plate
+  for (let r = 0; r < rowsN; r++) {
+    for (let c = 0; c < colsN; c++) {
+      const dr = r - centerRow;
+      const dc = c - centerCol;
+      const dist = Math.sqrt(dr * dr + dc * dc);
+      const t = dist / maxGridRadius;
+
+      let yOffset = minY;
+
+      switch (pattern) {
+        case "dome":
+          yOffset = minY + (maxY - minY) * (1 - t) ** 2;
+          break;
+        case "reverseDome":
+          yOffset = minY + (maxY - minY) * t ** 2;
+          break;
+        case "wave":
+          yOffset =
+            (minY + maxY) / 2 +
+            (Math.sin(c * 0.5) + Math.cos(r * 0.5)) *
+              ((maxY - minY) / 2) *
+              0.5;
+          break;
+        case "ripple":
+          yOffset =
+            minY + (maxY - minY) * (Math.sin(dist * 1.5) * 0.5 + 0.5);
+          break;
+        case "spiral":
+          yOffset =
+            minY +
+            (maxY - minY) *
+              ((Math.atan2(dr, dc) + Math.PI) / (2 * Math.PI));
+          break;
+        case "diagonal":
+          yOffset =
+            minY + (maxY - minY) * ((r + c) / (rowsN + colsN - 2));
+          break;
+        case "checkerboard":
+          yOffset = (r + c) % 2 === 0 ? minY : maxY;
+          break;
+        case "random":
+          yOffset = minY + Math.random() * (maxY - minY);
+          break;
+        default:
+          yOffset = minY;
+      }
+
+      yOffset = Math.floor(yOffset);
+
+      const x = offsetX + c * spacingW;
+      const z = offsetZ + r * spacingL;
+
+      const pendant = baseModel.clone();
+      pendant.position.set(x, yOffset, z);
+      pendant.userData.isPendant = true;
+      scene.add(pendant);
+
+      const stringHeight = surfaceHeight - yOffset;
+      const string = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.1, 0.1, stringHeight, 8),
+        new THREE.MeshStandardMaterial({
+          color: 0xcccccc,
+          metalness: 0.9,
+          roughness: 0.2,
+        })
+      );
+
+      string.position.set(x, yOffset + stringHeight / 2, z);
+      string.userData.isString = true;
+      scene.add(string);
+
+      localStringHeight.push({
+        x,
+        y: z,
+        row: r,
+        col: c,
+        stringHeight,
+      });
+    }
+  }
+}
+
+onStringHeightsUpdate?.(localStringHeight);
+
+
+    let surfaceGeometry;
+
+    if (surfaceShape === "circle") {
+      surfaceGeometry = new THREE.CircleGeometry(circleRadius, config.circleSegments);
+    } else {
+      surfaceGeometry = new THREE.PlaneGeometry(surfaceWidth, surfaceLength);
+    }
 
     const surfaceMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(surfaceWidth, surfaceLength),
+      surfaceGeometry,
       new THREE.MeshStandardMaterial({
-        color: 0x555555,
+        color: 0xe2e2e2,
         side: THREE.DoubleSide,
       })
     );

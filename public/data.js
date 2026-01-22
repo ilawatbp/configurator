@@ -12,6 +12,7 @@
       ],
       specification:{
         color: ["red","blue", "clear", "green"],
+        surfaceShape: ["circle", "rectangle"]
       }
     },
     {
