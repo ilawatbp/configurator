@@ -73,7 +73,7 @@ function createDimensionLine(start, end, labelText) {
 /* =====================================================
    COMPONENT
    ===================================================== */
-const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
+const ObjFile = forwardRef(({ config, onStringHeightsUpdate, showDimention}, ref) => {
   const containerRef = useRef(null);
   const sceneRef = useRef(new THREE.Scene());
   const modelRef = useRef(null);
@@ -81,6 +81,8 @@ const ObjFile = forwardRef(({ config, onStringHeightsUpdate }, ref) => {
   const cameraRef = useRef(null);
 
   const dimensionLines = useRef([]);
+  const dimenttionHelperRef = useRef(null);
+  const axesHelperRef = useRef(null);
 
   const { workingModel} = useWorkingModel();
   const surfaceShape = workingModel.surfaceShape; //shape of baseplate
@@ -94,6 +96,13 @@ const configRef = useRef(config);
 useEffect(() => {
   configRef.current = config;
 }, [config]);
+
+useEffect(() => {
+  if (axesHelperRef.current) axesHelperRef.current.visible = showDimention;
+
+  // also re-generate scene so dimension lines disappear/appear
+  if (modelRef.current) updateSceneWithConfig();
+}, [showDimention]);
 
   /* =====================================================
      EXPOSE EXPORT FUNCTION
@@ -147,17 +156,13 @@ function exportOBJ() {
     cameraRef.current = camera;
 
     // Helpers
-
-    //scene.add(new THREE.AxesHelper(300)); // red green blue axis (Y (Height green),X (Width red) Z (Length blue))
-    // scene.add(new THREE.GridHelper(1000, 50));
-    //this 2 is the original helpers 
-
-    const axes = new THREE.AxesHelper(300);
-    const colors = axes.geometry.attributes.color;
-    axes.material.transparent = true; // REQUIRED
-    axes.material.opacity = 0.1;
-    colors.needsUpdate = true;
-    scene.add(axes);
+    // axis helpers the (x, y, z lines)
+    // const axes = new THREE.AxesHelper(300);
+    // axes.userData.isAxisHelper = true;
+    // axes.material.transparent = true;
+    // axes.material.opacity = 0.1;
+    // scene.add(axes);
+    // axesHelperRef.current = axes;
 
 
     const belowGrid = new THREE.GridHelper(1000, 50);
@@ -327,7 +332,8 @@ if (surfaceShape === "circle") {
 
 
 // DIMENSIONS — EDGE ALIGNED (RECT) / DIAMETER (CIRCLE)
-if (surfaceShape === "circle") {
+
+if (surfaceShape === "circle" && showDimention) {
   const diameter = circleRadius * 2;
 
   const diaLine = createDimensionLine(
@@ -338,7 +344,8 @@ if (surfaceShape === "circle") {
   scene.add(diaLine);
   dimensionLines.current.push(diaLine);
 
-} else {
+} 
+if (surfaceShape !== "circle" && showDimention) {
   const widthLine = createDimensionLine(
     new THREE.Vector3(-surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
     new THREE.Vector3(surfaceWidth / 2, surfaceHeight + 5, surfaceLength / 2),
@@ -357,7 +364,7 @@ if (surfaceShape === "circle") {
 }
 
 
-    // GRID SIZE
+// GRID SIZE
 const gridWidth  = (colsN - 1) * spacingW; // X
 const gridLength = (rowsN - 1) * spacingL; // Z
 
@@ -382,6 +389,8 @@ if (surfaceShape === "circle") {
   // keep pendants slightly inside the plate edge
   const margin = Math.max(0, Number(baseOffset || 0) * 0.5);
   const usableRadius = Math.max(1, circleRadius - margin);
+      // const usableRadius = inputSurfaceWidth && inputSurfaceLength ? Math.max(1, circleRadius - spacingL) : Math.max(1, circleRadius - margin);
+  console.log(margin)
 
   const points = generateSunflowerPoints(total, usableRadius);
 
@@ -533,24 +542,37 @@ onStringHeightsUpdate?.(localStringHeight);
 
 
     let surfaceGeometry;
+    const thickness = 4; // cm
+
+    const surfaceMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e2e2,
+      side: THREE.DoubleSide,
+    });
 
     if (surfaceShape === "circle") {
-      surfaceGeometry = new THREE.CircleGeometry(circleRadius, config.circleSegments);
+      surfaceGeometry = new THREE.CylinderGeometry(
+        circleRadius,
+        circleRadius,
+        thickness,
+        config.circleSegments
+      );
     } else {
-      surfaceGeometry = new THREE.PlaneGeometry(surfaceWidth, surfaceLength);
+      surfaceGeometry = new THREE.BoxGeometry(
+        surfaceWidth,   // X (width)
+        thickness,      // Y (thickness) ✅
+        surfaceLength   // Z (length)
+      );
     }
 
-    const surfaceMesh = new THREE.Mesh(
-      surfaceGeometry,
-      new THREE.MeshStandardMaterial({
-        color: 0xe2e2e2,
-        side: THREE.DoubleSide,
-      })
-    );
-    surfaceMesh.rotation.x = -Math.PI / 2;
-    surfaceMesh.position.set(0, surfaceHeight, 0);
+    const surfaceMesh = new THREE.Mesh(surfaceGeometry, surfaceMat);
+
+    // surfaceMesh.rotation.x = -Math.PI / 2;
+    surfaceMesh.rotation.set(0, 0, 0);
+    // surfaceMesh.position.set(0, surfaceHeight, 0);
+    surfaceMesh.position.set(0, surfaceHeight - thickness / 2, 0);
     surfaceMesh.userData.isSurface = true;
     scene.add(surfaceMesh);
+    
   };
 
   const handleResize = () => {

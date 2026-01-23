@@ -1,4 +1,4 @@
-// src/components/LightComposition.jsx
+import { RulerDimensionLine } from 'lucide-react';
 import React, { useState, useRef } from "react";
 import Styles from "./LightComposition.module.css";
 import ObjFile from "./ObjFile.jsx";
@@ -17,6 +17,7 @@ export default function LightComposition() {
   const [ismodalOpen, setIsModalOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
   const [stringHeights, setStringHeights] = useState([]);
+  const [showDimention, setShowDimention] = useState(true);
 
   const [config, setConfig] = useState({
     rows: 9,
@@ -77,8 +78,6 @@ export default function LightComposition() {
    COLLECT DATA FOR MODAL
    =============================== */
 const handleGetData = () => {
-  // IMPORTANT: Must match ObjFile.jsx axis convention:
-  // rows -> Length (Z), cols -> Width (X)
   const autoSurfaceLength =
     (config.rows - 1) * config.spacingL + parseInt(config.baseOffset || 0, 10);
 
@@ -91,18 +90,28 @@ const handleGetData = () => {
   const surfaceWidth =
     config.surfaceWidth === 0 ? autoSurfaceWidth : config.surfaceWidth;
 
+  const isCircle = workingModel.surfaceShape === "circle";
+
+  // ✅ IMPORTANT: clone + enrich NOW so first render is correct
+  const enrichedStringHeights = (stringHeights || []).map((s, i) => ({
+    ...s,
+    row: s.row ?? (isCircle ? `P${i + 1}` : s.row),
+    col: s.col ?? (isCircle ? "" : s.col),
+    index: s.index ?? i,
+  }));
+
   const data = {
-    stringHeights,
+    stringHeights: enrichedStringHeights,
     surface: {
-      length: surfaceLength, // Z
-      width: surfaceWidth,   // X
+      length: surfaceLength,
+      width: surfaceWidth,
       height: config.surfaceHeight,
       baseOffset: config.baseOffset,
-      spacingL: config.spacingL, // (optional, but useful later)
-      spacingW: config.spacingW, // (optional, but useful later)
+      spacingL: config.spacingL,
+      spacingW: config.spacingW,
       rows: config.rows,
       cols: config.cols,
-      shape: workingModel.surfaceShape, // "rect" | "circle"
+      shape: workingModel.surfaceShape,
     },
     pattern: config.pattern,
     pendantType: "Custom Pendant",
@@ -113,6 +122,7 @@ const handleGetData = () => {
   setCurrentData(data);
   setIsModalOpen(true);
 };
+
 
 
   /* ===============================
@@ -177,7 +187,7 @@ const handleGetData = () => {
             const isSurfaceValue = config.surfaceLength > 0 || config.surfaceWidth > 0;
             return(            
             <div key={name} className={`transition-all duration-500 ease-in-out
-                                      ${isSurfaceField && isSurfaceValue ? "opacity-0 max-h-0 scale-95": "opacity-1 max-h-40 scale-100"}
+                                      ${isSurfaceField && isSurfaceValue && workingModel.surfaceShape !== "circle"? "opacity-0 max-h-0 scale-95": "opacity-1 max-h-40 scale-100"}
             `}>
               <label>{label}</label>
               <div className={name == "cols" || name == "spacingW" || name == "surfaceLength"  || name == "highest" ? 'mb-16' : null }>
@@ -201,7 +211,7 @@ const handleGetData = () => {
             </div>)
 
 })}
-          <div><button  onChange={handleChange}>refresh</button></div>
+          <div><button  onClick={handleChange}>refresh</button></div>
         {/* {Object.entries(workingModel).map(([val, value]) => value)} */}
         </div>
 
@@ -221,6 +231,7 @@ const handleGetData = () => {
         ref={objRef}
         config={config}
         onStringHeightsUpdate={setStringHeights}
+        showDimention = {showDimention}
       />
 
       {/* ================= MODAL ================= */}
@@ -271,7 +282,7 @@ const handleGetData = () => {
                 <tbody>
                   {currentData.stringHeights.map((s, i) => (
                     <tr key={i} className="border-b">
-                      {workingModel.shape == "circle" ? (<td>{`${s.row}`}</td>) : (<td>{`R${s.row} C${s.col}`}</td>)}
+                      {workingModel.surfaceShape == "circle" ? (<td>{`${s.row}`}</td>) : (<td>{`R${s.row} C${s.col}`}</td>)}
                       <td>{`${s.stringHeight} cm`}</td>
                     </tr>
                   ))}
@@ -281,6 +292,9 @@ const handleGetData = () => {
           </div>
         )}
       </Modal>
+      <div className="fixed top-4 right-4">
+                <RulerDimensionLine className='w-10 h-10' onClick={()=> setShowDimention(prev => !prev)}/>
+      </div>
     </div>
   );
 }
