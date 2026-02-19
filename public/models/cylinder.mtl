@@ -1,0 +1,34 @@
+# Blender 5.0.1 MTL File: 'customized glass URDANETA.blend'
+# www.blender.org
+
+newmtl Noise_Illusion_Mirror
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.733414 0.733257 0.733237
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Poliigon_MetalGoldPaint_7253_4K
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Ns C:/Users/Admin/Poliigon/Library/Poliigon_MetalGoldPaint_7253/4K/Poliigon_MetalGoldPaint_7253_Roughness.jpg
+map_refl C:/Users/Admin/Poliigon/Library/Poliigon_MetalGoldPaint_7253/4K/Poliigon_MetalGoldPaint_7253_Metallic.jpg
+map_Bump -bm 1.000000 C:/Users/Admin/Poliigon/Library/Poliigon_MetalGoldPaint_7253/4K/Poliigon_MetalGoldPaint_7253_Normal.png
+
+newmtl Procedural_Glass
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
