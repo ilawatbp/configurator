@@ -206,25 +206,25 @@ function exportOBJ() {
         (obj) => {
 
           // ✅ CHANGE OBJ COLOR HERE (before cloning)
-          obj.traverse((child) => {
-            if (child.isMesh) {
-              child.material = new THREE.MeshStandardMaterial({
-              color: getHexColor(),       // glass tint (white = clear)
-              roughness: 0.05,       // lower = clearer reflections
-              metalness: 0.0,
+          // obj.traverse((child) => {
+          //   if (child.isMesh) {
+          //     child.material = new THREE.MeshStandardMaterial({
+          //     color: getHexColor(),       // glass tint (white = clear)
+          //     roughness: 0.05,       // lower = clearer reflections
+          //     metalness: 0.0,
 
-              transmission: 1.0,     // TRUE glass (light passes through)
-              transparent: true,     // required for transmission/opacity behavior
-              opacity: 0.8,          // keep 1.0 when using transmission
-              ior: 1.5,              // glass ~1.45–1.52
-              thickness: 1.0,        // "volume" feel (tweak per model scale)
-              clearcoat: 1.0,
-              clearcoatRoughness: 0.05,
+          //     transmission: 1.0,     // TRUE glass (light passes through)
+          //     transparent: true,     // required for transmission/opacity behavior
+          //     opacity: 0.8,          // keep 1.0 when using transmission
+          //     ior: 1.5,              // glass ~1.45–1.52
+          //     thickness: 1.0,        // "volume" feel (tweak per model scale)
+          //     clearcoat: 1.0,
+          //     clearcoatRoughness: 0.05,
 
-              side: THREE.DoubleSide // useful if your glass is thin (no inner faces)
-              });
-            }
-          });
+          //     side: THREE.DoubleSide // useful if your glass is thin (no inner faces)
+          //     });
+          //   }
+          // });
 
           modelRef.current = obj;
           updateSceneWithConfig();
@@ -431,6 +431,7 @@ if (surfaceShape === "circle") {
     const pendant = baseModel.clone();
     pendant.position.set(x, yOffset, z);
     pendant.userData.isPendant = true;
+    pendant.rotation.y = Math.random() * Math.PI * 2;
     scene.add(pendant);
 
     const stringHeight = surfaceHeight - yOffset;

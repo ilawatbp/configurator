@@ -293,7 +293,7 @@ const handleGetData = () => {
         )}
       </Modal>
       <div className="fixed top-4 right-4">
-                <RulerDimensionLine className='w-10 h-10' onClick={()=> setShowDimention(prev => !prev)}/>
+                <RulerDimensionLine className='w-5 md:w-8 md:h-8' onClick={()=> setShowDimention(prev => !prev)}/>
       </div>
     </div>
   );
