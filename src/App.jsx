@@ -1,52 +1,62 @@
-import Header from "./components/Header.jsx";
-import SideBar from "./components/SideBar.jsx";
-import { useWorkingModel } from "./context/WorkingModelContext";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import WaitingApproval from "./pages/WaitingApproval";
+import { useEffect, useState } from "react";
+import { supabase } from "./lib/supabase";
 
-import LightComposition from "./components/LightComposition/LightComposition";
-import LightDetail from "./components/LightDetail";
-import LightType from "./components/LightType";
-
+import Login from "./pages/Login";
 import "./App.css";
-import { useState } from "react";
 
-function App() {
+import Configurator from "./pages/Configurator";
 
-    const {btnClicked, setBtnClicked} = useWorkingModel();
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  const [approved, setApproved] = useState(null);
+  const [checking, setChecking] = useState(true);
 
+  useEffect(() => {
+    const checkApproval = async () => {
+      if (!user) return;
 
-  function handleTabClick(value) {
-    setBtnClicked(value);
-  }
-  let content = null;
-  const clickValue = btnClicked;
-  if (clickValue === "type") {
-    content = <LightType />;
-  } else if (clickValue === "detail") {
-    content = <LightDetail />;
-  } else if (clickValue === "composition") {
-    content = <LightComposition />;
-  } else {
-    content = <p>Please select a light option.</p>;
-  }
-  return (
-    <>
-      <div>
-        <Header handleTabClick={handleTabClick} />
-        <div className="main-container">
-          <div className="side-bar ">
-            <SideBar
-              handleTabClick={handleTabClick}
-              btnClicked={btnClicked}
-            ></SideBar>
-          </div>
-          <div className="w-full ">
-            {content}
-          </div>
-        </div>
-      </div>
-    </>
-  );
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("approved")
+        .eq("id", user.id)
+        .single();
+
+      setApproved(profile?.approved ?? false);
+      setChecking(false);
+    };
+
+    if (user) checkApproval();
+    else setChecking(false);
+  }, [user]);
+
+  if (loading || checking) return <div>Loading...</div>;
+
+  if (!user) return <Navigate to="/login" />;
+
+  if (!approved) return <WaitingApproval />;
+
+  return children;
 }
 
-export default App;
-// new version
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Configurator />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}

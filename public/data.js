@@ -3,8 +3,8 @@
       id: "GL012A",
       name: "GL012A orange",
       images: [
-        import.meta.env.BASE_URL + "/crystals/GL012A/GL012A.jpg",
-        import.meta.env.BASE_URL + "/crystals/GL012A/GL012A-2.jpg",
+        "/crystals/GL012A/GL012A.jpg",
+        "/crystals/GL012A/GL012A-2.jpg",
       ],
       specification:{
         color: ["white","orange"],
@@ -15,7 +15,7 @@
       id: "bird",
       name: "bird",
       images: [
-        import.meta.env.BASE_URL + "/crystals/bird/bird.jpg",
+        "/crystals/bird/bird.jpg",
       ],
       specification:{
         surfaceShape: ["circle", "rectangle"]
