@@ -36,12 +36,23 @@ export default function Login() {
         }
     };
 
+    const resetPassword = async () => {
+        if (!email) return alert("Enter your email first");
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: "https://ilawconfigurator.app/reset-password",
+        });
+
+        if (error) alert(error.message);
+        else alert("Password reset email sent!");
+    };
+
     return (
         <>
             <div className="fixed w-full h-auto p-8">
                 <img className="margin-auto w-[50px]" src={logo} alt="icon" />
             </div>
-            <div className="h-screen w-screen bg-white 
+            <div className="min-h-[100dvh] w-screen bg-white 
                             flex justify-between items-center flex-col
         ">
 
@@ -74,6 +85,9 @@ export default function Login() {
 
                         <button disabled={loading} className="bg-[#3db44c] text-white h-12 rounded-2xl px-2 ">
                             {loading ? "Please wait..." : mode === "login" ? "Login" : "Register"}
+                        </button>
+                        <button onClick={resetPassword}>
+                            Forgot Password?
                         </button>
                     </form>
 

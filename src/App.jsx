@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import WaitingApproval from "./pages/WaitingApproval";
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
+import ResetPassword from "./pages/ResetPassword";
 
 import Login from "./pages/Login";
 import "./App.css";
@@ -46,6 +47,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/login" element={<Login />} />
           <Route
             path="/"
