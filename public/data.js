@@ -21,6 +21,27 @@
         surfaceShape: ["circle", "rectangle"]
       }
     },
+    {
+      id: "Autumn leaves Glass",
+      name: "Autumn leaves Glass",
+      images: [
+        "crystals/autumn_leaves_glass/autumn_leaves_glass.png"
+      ],
+      specification:{
+        color: ["yellow"],
+        surfaceShape: ["circle", "rectangle"]
+      }
+    },
+    {
+      id: "IACC-GL014",
+      name: "IACC-GL014",
+      images: [
+        "crystals/IACC-GL014/IACC-GL014.png"
+      ],
+      specification:{
+        surfaceShape: ["circle", "rectangle"]
+      }
+    },
   ];
 
 
